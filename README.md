@@ -46,7 +46,7 @@ Edit `src/config/project.ts` to update:
 - Contract address
 - Pump.fun URL
 - Telegram URL
-- X/Twitter URL (when available)
+- X/Twitter URL
 
 ## Development
 
@@ -141,6 +141,10 @@ The site includes:
 - robots.txt
 - sitemap.xml
 
+## Live Deployment
+
+**Production URL**: https://pumpsomething.vercel.app
+
 ## License
 
 This is a community meme project. Do what you want with it.
@@ -148,3 +152,5 @@ This is a community meme project. Do what you want with it.
 ## Support
 
 Join our community: https://t.me/pumpsomething
+
+**X/Twitter**: https://x.com/PumpSomething
