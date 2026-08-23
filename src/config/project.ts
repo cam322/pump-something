@@ -12,7 +12,7 @@ export const PROJECT_CONFIG = {
   // Official URLs
   pumpfunUrl: "https://pump.fun/coin/HSMwLiADMPDqvL1zy2qgaBTFpRHGij7NoCRkJDapump",
   telegramUrl: "https://t.me/pumpsomething",
-  xUrl: "", // TODO: Add X/Twitter URL when provided
+  xUrl: "https://x.com/PumpSomething",
   
   // Derived URLs
   get contractDisplay() {
