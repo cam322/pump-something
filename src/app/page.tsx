@@ -17,13 +17,7 @@ export default function HomePage() {
       <Navigation />
 
       {/* Hero Section */}
-      <section className="relative pt-24 pb-32 px-4 overflow-hidden">
-        {/* Animated background elements */}
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-20 left-10 text-6xl animate-pulse">🚀</div>
-          <div className="absolute bottom-20 right-10 text-4xl animate-pulse delay-1000">🚀</div>
-        </div>
-
+      <section className="relative pt-24 pb-32 px-4">
         <div className="container mx-auto text-center">
           {/* $SOMETHING Badge */}
           <div className="inline-flex items-center gap-3 px-4 py-2 bg-green-500/20 border border-green-500/30 rounded-full mb-12">
@@ -32,7 +26,7 @@ export default function HomePage() {
 
           {/* Main Title */}
           <h1 className="text-7xl md:text-8xl font-black mb-8 leading-none">
-            <span className="text-green-400">PUMP</span>{" "}
+            <span className="text-green-400">PUMP</span>
             <span className="text-white neon-glow">SOMETHING</span>
           </h1>
 
@@ -52,12 +46,12 @@ export default function HomePage() {
           </p>
 
           {/* CTAs */}
-          <div className="flex flex-col sm:flex-row justify-center gap-4 mb-16">
+          <div className="flex flex-col sm:flex-row justify-center gap-4 mb-12">
             <Link
               href={PROJECT_CONFIG.telegramUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-3 px-8 py-4 bg-green-500 text-black font-bold text-lg rounded-full hover:bg-green-400 transition-all duration-300 transform hover:scale-105"
+              className="inline-flex items-center gap-3 px-8 py-4 bg-green-500 text-black font-bold text-lg rounded-full hover:bg-green-400 transition-all duration-300"
             >
               JOIN THE COMMUNITY
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -78,19 +72,8 @@ export default function HomePage() {
           </div>
 
           {/* Mascot */}
-          <div className="relative inline-block">
+          <div className="inline-block">
             <SomethingMascot size={150} animate={true} />
-            {/* Floating coins */}
-            <div className="absolute top-[-30px] right-[-30px] animate-bounce">
-              <div className="w-8 h-8 bg-green-400 rounded-full flex items-center justify-center shadow-[0_0_15px_rgba(34,197,94,0.5)]">
-                <span className="text-xs font-bold">$</span>
-              </div>
-            </div>
-            <div className="absolute bottom-[-30px] left-[-30px] animate-bounce delay-500">
-              <div className="w-8 h-8 bg-green-400 rounded-full flex items-center justify-center shadow-[0_0_15px_rgba(34,197,94,0.5)]">
-                <span className="text-xs font-bold">S</span>
-              </div>
-            </div>
           </div>
         </div>
       </section>
@@ -100,8 +83,8 @@ export default function HomePage() {
         <div className="container mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-5xl md:text-6xl font-black mb-6">
-              <span className="text-green-400">SOMETHING</span>{" "}
-              <span className="text-white">IS HAPPENING.</span>
+              <span className="text-green-400">SOMETHING</span>
+              <span className="text-white"> IS HAPPENING.</span>
             </h2>
             <p className="text-white/60 text-xl max-w-2xl mx-auto">
               The internet never stops.
@@ -138,7 +121,7 @@ export default function HomePage() {
         <div className="container mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-5xl md:text-6xl font-black mb-6">
-              <span className="text-green-400">THE $SOMETHING</span>{" "}
+              <span className="text-green-400">THE $SOMETHING</span>
               <span className="text-white">MISSION</span>
             </h2>
           </div>
@@ -198,7 +181,8 @@ export default function HomePage() {
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-12">
               <h2 className="text-5xl md:text-6xl font-black mb-6">
-                <span className="text-green-400">WHAT</span> <span className="text-white">IS $SOMETHING?</span>
+                <span className="text-green-400">WHAT</span>
+                <span className="text-white"> IS $SOMETHING?</span>
               </h2>
             </div>
 
@@ -244,7 +228,7 @@ export default function HomePage() {
         <div className="container mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-5xl md:text-6xl font-black mb-6">
-              <span className="text-green-400">THE ACTUAL</span>{" "}
+              <span className="text-green-400">THE ACTUAL</span>
               <span className="text-white">$SOMETHING</span>
             </h2>
           </div>
