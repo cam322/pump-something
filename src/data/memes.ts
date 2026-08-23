@@ -17,55 +17,63 @@ export interface MemeData {
   date?: string;
 }
 
-// Sample meme data - replace with actual images in public/memes/
+// Meme gallery data - all images stored in public/memes/
 export const memeGallery: MemeData[] = [
   {
     id: "1",
-    title: "When the Game Leaks",
-    image: "/memes/placeholder-1.png",
-    category: "gaming",
-    caption: "Something is always happening in gaming",
-    date: "2024-08-20"
+    title: "Girlfriend Predicts Something",
+    image: "/memes/meme-1.png",
+    category: "internet",
+    caption: "When your girlfriend knows something before you do",
+    date: "2024-08-23"
   },
   {
     id: "2",
-    title: "Crypto Goes Wild",
-    image: "/memes/placeholder-2.png",
+    title: "Something Composed",
+    image: "/memes/meme-2.png",
     category: "crypto",
-    caption: "The internet never loses its mind",
-    date: "2024-08-18"
+    caption: "The art of doing something well",
+    date: "2024-08-23"
   },
   {
     id: "3",
-    title: "Viral Video Moment",
-    image: "/memes/placeholder-3.png",
-    category: "internet",
-    caption: "Something always goes viral",
-    date: "2024-08-15"
+    title: "Wrong Blockchain",
+    image: "/memes/meme-3.png",
+    category: "crypto",
+    caption: "When you discover the wrong blockchain",
+    date: "2024-08-23"
   },
   {
     id: "4",
-    title: "Community Submission",
-    image: "/memes/placeholder-4.png",
-    category: "community",
-    caption: "Made by the community",
-    date: "2024-08-10"
+    title: "Something Crypto Vibes",
+    image: "/memes/meme-4.png",
+    category: "crypto",
+    caption: "The crypto energy we all feel",
+    date: "2024-08-23"
   },
   {
     id: "5",
-    title: "Breaking News",
-    image: "/memes/placeholder-5.png",
-    category: "breaking",
-    caption: "Something is always breaking",
-    date: "2024-08-05"
+    title: "Girlfriend vs Something Crypto Meme",
+    image: "/memes/meme-5.png",
+    category: "crypto",
+    caption: "The ultimate crypto dilemma",
+    date: "2024-08-23"
   },
   {
     id: "6",
-    title: "Meme Remix",
-    image: "/memes/placeholder-6.png",
-    category: "internet",
-    caption: "Community remixes are the best",
-    date: "2024-08-01"
+    title: "Something Telegram Launch",
+    image: "/memes/meme-6.png",
+    category: "community",
+    caption: "When the Telegram launch drops",
+    date: "2024-08-23"
+  },
+  {
+    id: "7",
+    title: "Something Meme Collection",
+    image: "/memes/meme-7.png",
+    category: "gaming",
+    caption: "The something meme collection",
+    date: "2024-08-23"
   }
 ];
 
