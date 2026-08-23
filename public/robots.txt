@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://nipr.vercel.app/sitemap.xml
+
+User-agent: Googlebot
+Disallow:
+
+User-agent: Bingbot
+Disallow:
