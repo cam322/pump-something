@@ -4,7 +4,6 @@ import { Footer } from "@/components/Footer";
 import { CopyButton } from "@/components/CopyButton";
 import { SomethingMascot } from "@/components/Mascot";
 import { PROJECT_CONFIG } from "@/config/project";
-import { openMemeGenerator } from "@/components/MemeGeneratorContext";
 
 export const metadata = {
   title: "Pump Something ($SOMETHING) | Solana Meme Community",
@@ -170,13 +169,7 @@ export default function HomePage() {
                 <span className="text-3xl">🚀</span>
               </div>
               <h3 className="text-xl font-bold text-green-400 mb-2">DO SOMETHING</h3>
-              <p className="text-white/70 text-sm">Generate a meme! Let&apos;s do SOMETHING.</p>
-              <button
-                onClick={openMemeGenerator}
-                className="mt-3 px-4 py-2 bg-green-500 text-black font-bold rounded-full hover:bg-green-400 transition-all text-sm"
-              >
-                GENERATE MEME
-              </button>
+              <p className="text-white/70 text-sm">Have fun on Solana.</p>
             </div>
           </div>
         </div>

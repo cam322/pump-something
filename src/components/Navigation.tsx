@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { openMemeGenerator } from "./MemeGeneratorContext";
 
 export function Navigation() {
   return (
@@ -40,13 +39,13 @@ export function Navigation() {
           </a>
         </div>
 
-        {/* Desktop CTA - DO SOMETHING */}
-        <button
-          onClick={openMemeGenerator}
-          className="hidden md:flex bg-green-500 text-black font-bold px-4 py-2 rounded-full hover:bg-green-400 transition-colors"
+        {/* Existing CTA - DO SOMETHING */}
+        <Link
+          href="/do-something"
+          className="flex bg-green-500 text-black font-bold px-4 py-2 rounded-full hover:bg-green-400 transition-colors"
         >
           DO SOMETHING
-        </button>
+        </Link>
       </div>
     </nav>
   );

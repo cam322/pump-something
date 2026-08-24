@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Image from "next/image";
 
 interface MemeGeneratorProps {
   onClose: () => void;
@@ -149,7 +148,7 @@ export function MemeGenerator({ onClose, onMemeGenerated }: MemeGeneratorProps) 
 
     const projectConfig = {
       xUrl: "https://x.com/PumpSomething",
-      websiteUrl: "https://snipr.vercel.app",
+      websiteUrl: window.location.origin,
     };
 
     const text = encodeURIComponent("I just did $SOMETHING 😂");
@@ -312,15 +311,14 @@ export function MemeGenerator({ onClose, onMemeGenerated }: MemeGeneratorProps) 
 
         {/* Meme Image */}
         <div className="w-full max-w-2xl mb-8">
-          <div className="relative aspect-video rounded-xl border border-green-500/20 overflow-hidden">
-            <Image
+          <div className="relative aspect-video bg-black/30 rounded-xl border border-green-500/20 overflow-hidden">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
               src={generatedMeme.imageUrl}
               alt={`Meme about ${generatedMeme.topic}`}
-              fill
-              sizes="(max-width: 768px) 100vw, 50vw"
-              className="object-contain"
+              className="w-full h-full object-contain"
               onError={(e) => {
-                (e.target as HTMLImageElement).src = "/memes/placeholder.png";
+                e.currentTarget.src = "/memes/placeholder.png";
               }}
             />
           </div>
