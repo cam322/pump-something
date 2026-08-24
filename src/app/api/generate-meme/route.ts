@@ -109,14 +109,13 @@ function buildPrompt(topic: string, category: string): string {
   return categoryPrompts[category] || categoryPrompts["dumb"];
 }
 
-// Generate meme via external API (simulated for demo)
+// Generate meme via external API
 async function callMemeLordApi(prompt: string): Promise<string> {
   const apiKey = process.env.MEMELORD_API_KEY;
-  const apiUrl = process.env.MEMELORD_API_URL || "https://api.memelord.example.com/v1/generate";
+  const apiUrl = process.env.MEMELORD_API_URL;
 
-  if (!apiKey || apiKey === "YOUR_API_KEY_HERE") {
-    // Return a placeholder for development
-    return `https://via.placeholder.com/1024x1024/000000/00ff00?text=${encodeURIComponent("SOMETHING MEME")}`;
+  if (!apiKey || !apiUrl) {
+    throw new Error("MemeLord API configuration missing");
   }
 
   const response = await fetch(apiUrl, {
@@ -193,6 +192,13 @@ export async function POST(request: NextRequest) {
 
     // Handle specific errors
     if (error instanceof Error) {
+      if (error.message.includes("configuration missing")) {
+        return NextResponse.json(
+          { error: "MemeLord is not configured yet. Add the server environment variables and try again." },
+          { status: 503 }
+        );
+      }
+
       if (error.message.includes("MemeLord API")) {
         return NextResponse.json(
           { error: "MemeLord API is not responding. Please try again later." },
