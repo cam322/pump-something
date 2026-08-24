@@ -14,6 +14,22 @@ interface MemeResponse {
   imageUrl: string;
   prompt: string;
   topic: string;
+  templateName?: string;
+  expiresIn?: number;
+}
+
+interface MemeLordResult {
+  success?: boolean;
+  url?: string;
+  expires_in?: number;
+  template_name?: string;
+}
+
+interface MemeLordResponse {
+  success?: boolean;
+  prompt?: string;
+  total_generated?: number;
+  results?: MemeLordResult[];
 }
 
 // Validate input
@@ -110,13 +126,17 @@ function buildPrompt(topic: string, category: string): string {
 }
 
 // Generate meme via external API
-async function callMemeLordApi(prompt: string): Promise<string> {
+async function callMemeLordApi(prompt: string, category: string): Promise<MemeLordResult> {
   const apiKey = process.env.MEMELORD_API_KEY;
   const apiUrl = process.env.MEMELORD_API_URL;
 
   if (!apiKey || !apiUrl) {
     throw new Error("MemeLord API configuration missing");
   }
+
+  const memeLordCategory = category === "crypto" || category === "gaming" || category === "breaking"
+    ? "trending"
+    : "classic";
 
   const response = await fetch(apiUrl, {
     method: "POST",
@@ -126,8 +146,9 @@ async function callMemeLordApi(prompt: string): Promise<string> {
     },
     body: JSON.stringify({
       prompt,
-      model: process.env.MEMELORD_MODEL_ID || "default",
-      template: process.env.MEMELORD_TEMPLATE_ID || "meme",
+      count: 1,
+      category: memeLordCategory,
+      include_nsfw: false,
     }),
   });
 
@@ -135,8 +156,14 @@ async function callMemeLordApi(prompt: string): Promise<string> {
     throw new Error(`MemeLord API error: ${response.status}`);
   }
 
-  const data = await response.json();
-  return data.imageUrl || data.url;
+  const data = await response.json() as MemeLordResponse;
+  const result = data.results?.find((item) => item.success && item.url) || data.results?.find((item) => item.url);
+
+  if (!data.success || !result?.url) {
+    throw new Error("MemeLord API malformed response");
+  }
+
+  return result;
 }
 
 export async function POST(request: NextRequest) {
@@ -178,12 +205,14 @@ export async function POST(request: NextRequest) {
     const prompt = buildPrompt(data.topic, data.category);
 
     // Call MemeLord API
-    const imageUrl = await callMemeLordApi(prompt);
+    const memeResult = await callMemeLordApi(prompt, data.category);
 
     const response: MemeResponse = {
-      imageUrl,
+      imageUrl: memeResult.url as string,
       prompt,
       topic: data.topic,
+      templateName: memeResult.template_name,
+      expiresIn: memeResult.expires_in,
     };
 
     return NextResponse.json(response, { status: 200 });
