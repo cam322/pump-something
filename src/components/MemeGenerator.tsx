@@ -174,7 +174,7 @@ export function MemeGenerator({ onClose, onMemeGenerated }: MemeGeneratorProps) 
   if (step === "input") {
     return (
       <div
-        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md"
+        className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto p-3 pt-24 bg-black/90 backdrop-blur-md sm:items-center sm:p-4 sm:pt-4"
         onClick={() => onClose()}
       >
         <div
@@ -182,8 +182,8 @@ export function MemeGenerator({ onClose, onMemeGenerated }: MemeGeneratorProps) 
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="p-6 text-center border-b border-green-500/20">
-            <h2 className="text-2xl font-bold text-white mb-2">
+          <div className="p-5 text-center border-b border-green-500/20 sm:p-6">
+            <h2 className="text-xl font-bold text-white mb-2 sm:text-2xl">
               WHAT HAPPENED?
             </h2>
             <p className="text-white/60">
@@ -192,7 +192,7 @@ export function MemeGenerator({ onClose, onMemeGenerated }: MemeGeneratorProps) 
           </div>
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="p-6">
+          <form onSubmit={handleSubmit} className="p-5 sm:p-6">
             {error && (
               <div className="mb-4 p-3 bg-red-500/20 border border-red-500/30 rounded-lg text-red-300 text-sm">
                 {error}
@@ -209,7 +209,7 @@ export function MemeGenerator({ onClose, onMemeGenerated }: MemeGeneratorProps) 
                 value={topic}
                 onChange={(e) => setTopic(e.target.value)}
                 placeholder="e.g., GTA 6 leaked again"
-                className="w-full px-4 py-3 bg-black/50 border border-green-500/20 rounded-lg text-white text-lg focus:outline-none focus:border-green-400 focus:ring-2 focus:ring-green-500/20"
+                className="w-full px-4 py-3 bg-black/50 border border-green-500/20 rounded-lg text-white text-base focus:outline-none focus:border-green-400 focus:ring-2 focus:ring-green-500/20 sm:text-lg"
                 maxLength={200}
                 autoFocus
               />
@@ -236,7 +236,7 @@ export function MemeGenerator({ onClose, onMemeGenerated }: MemeGeneratorProps) 
                     key={cat.id}
                     type="button"
                     onClick={() => setSelectedCategory(cat.id)}
-                    className={`p-3 rounded-lg border transition-all ${
+                    className={`min-h-20 p-3 rounded-lg border transition-all ${
                       selectedCategory === cat.id
                         ? "bg-green-500 text-black border-green-500"
                         : "bg-black/30 text-white/70 border-green-500/20 hover:bg-black/50 hover:text-white"
@@ -250,7 +250,7 @@ export function MemeGenerator({ onClose, onMemeGenerated }: MemeGeneratorProps) 
             </div>
 
             {/* Buttons */}
-            <div className="flex gap-3">
+            <div className="flex flex-col gap-3 sm:flex-row">
               <button
                 type="button"
                 onClick={onClose}
@@ -289,19 +289,19 @@ export function MemeGenerator({ onClose, onMemeGenerated }: MemeGeneratorProps) 
 
   if (step === "result" && generatedMeme) {
     return (
-      <div className="fixed inset-0 z-50 flex flex-col items-center p-4 bg-black/90 backdrop-blur-md overflow-y-auto">
+      <div className="fixed inset-0 z-50 flex flex-col items-center p-3 pt-20 bg-black/90 backdrop-blur-md overflow-y-auto sm:p-4 sm:pt-8">
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 w-10 h-10 bg-black/50 text-white rounded-full flex items-center justify-center hover:bg-white/20 transition-all"
+          className="fixed top-4 right-4 w-11 h-11 bg-black/70 text-white rounded-full flex items-center justify-center hover:bg-white/20 transition-all"
           aria-label="Close"
         >
           ✕
         </button>
 
         {/* Result Header */}
-        <div className="text-center mb-6 mt-8">
-          <h2 className="text-3xl font-bold text-white mb-2">
+        <div className="text-center mb-6 mt-2 sm:mt-8">
+          <h2 className="text-2xl font-bold text-white mb-2 sm:text-3xl">
             SOMETHING HAPPENED.
           </h2>
           <p className="text-green-400 text-lg">
@@ -311,7 +311,7 @@ export function MemeGenerator({ onClose, onMemeGenerated }: MemeGeneratorProps) 
 
         {/* Meme Image */}
         <div className="w-full max-w-2xl mb-8">
-          <div className="relative aspect-video bg-black/30 rounded-xl border border-green-500/20 overflow-hidden">
+          <div className="relative aspect-square bg-black/30 rounded-xl border border-green-500/20 overflow-hidden">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={generatedMeme.imageUrl}
@@ -325,7 +325,7 @@ export function MemeGenerator({ onClose, onMemeGenerated }: MemeGeneratorProps) 
         </div>
 
         {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row gap-3 mb-8">
+        <div className="flex w-full max-w-2xl flex-col sm:flex-row gap-3 mb-8">
           <button
             onClick={downloadMeme}
             className="flex-1 px-6 py-3 bg-green-500 text-black font-bold rounded-lg hover:bg-green-400 transition-all flex items-center justify-center gap-2"
@@ -341,7 +341,7 @@ export function MemeGenerator({ onClose, onMemeGenerated }: MemeGeneratorProps) 
         </div>
 
         {/* Additional Options */}
-        <div className="flex flex-col sm:flex-row gap-3 mb-12">
+        <div className="flex w-full max-w-2xl flex-col sm:flex-row gap-3 mb-12">
           <button
             onClick={() => {
               setSelectedCategory(selectedCategory);

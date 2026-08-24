@@ -16,7 +16,7 @@ export default function CommunityPage() {
       {/* Hero */}
       <section className="pt-24 pb-12 px-4">
         <div className="container mx-auto text-center">
-          <h1 className="text-5xl md:text-6xl font-black mb-6">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-black mb-6 leading-tight">
             <span className="text-green-400">DON&apos;T JUST WATCH SOMETHING HAPPEN.</span>
           </h1>
           <p className="text-white/60 text-xl">Be part of the movement</p>
@@ -24,15 +24,15 @@ export default function CommunityPage() {
       </section>
 
       {/* Community CTA */}
-      <section className="py-20 px-4">
+      <section className="py-14 px-4 md:py-20">
         <div className="container mx-auto max-w-4xl">
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold mb-6">
+            <h2 className="text-3xl font-bold mb-6 sm:text-4xl">
               <span className="text-green-400">BE PART OF $SOMETHING.</span>
             </h2>
           </div>
 
-          <div className="bg-black/50 p-8 rounded-xl border border-green-500/20 mb-12">
+          <div className="bg-black/50 p-5 rounded-xl border border-green-500/20 mb-12 sm:p-8">
             <p className="text-white/80 mb-6 text-lg">
               Join a community of meme creators, internet culture enthusiasts, and Solana believers who are all doing something together.
             </p>
@@ -90,7 +90,7 @@ export default function CommunityPage() {
               href={PROJECT_CONFIG.telegramUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-3 px-8 py-4 bg-green-500 text-black font-bold text-xl rounded-full hover:bg-green-400 transition-all transform hover:scale-105"
+              className="inline-flex w-full items-center justify-center gap-3 px-6 py-4 bg-green-500 text-black font-bold text-base rounded-full hover:bg-green-400 transition-all transform hover:scale-105 sm:w-auto sm:px-8 sm:text-xl"
             >
               JOIN TELEGRAM
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -103,7 +103,7 @@ export default function CommunityPage() {
                 href={PROJECT_CONFIG.xUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-3 px-8 py-4 border-2 border-green-500 text-green-400 font-bold text-xl rounded-full hover:bg-green-500 hover:text-black transition-all"
+                className="inline-flex w-full items-center justify-center gap-3 px-6 py-4 border-2 border-green-500 text-green-400 font-bold text-base rounded-full hover:bg-green-500 hover:text-black transition-all sm:w-auto sm:px-8 sm:text-xl"
               >
                 CONTINUE ON X
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

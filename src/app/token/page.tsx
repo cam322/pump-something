@@ -17,18 +17,18 @@ export default function TokenPage() {
       {/* Header */}
       <section className="pt-24 pb-12 px-4">
         <div className="container mx-auto text-center">
-          <h1 className="text-5xl md:text-6xl font-black mb-6">
-            <span className="text-green-400">THE ACTUAL</span>{" "}
-            <span className="text-white">$SOMETHING</span>
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-black mb-6 leading-tight">
+            <span className="block text-green-400 sm:inline">THE ACTUAL</span>{" "}
+            <span className="block text-white sm:inline">$SOMETHING</span>
           </h1>
           <p className="text-white/60 text-xl">Token details on Solana</p>
         </div>
       </section>
 
       {/* Token Info */}
-      <section className="py-20 px-4">
+      <section className="py-14 px-4 md:py-20">
         <div className="container mx-auto max-w-2xl">
-          <div className="bg-gradient-to-br from-green-500/20 to-purple-500/20 p-8 rounded-xl border border-green-500/30 mb-12">
+          <div className="bg-gradient-to-br from-green-500/20 to-purple-500/20 p-5 rounded-xl border border-green-500/30 mb-12 sm:p-8">
             <div className="grid md:grid-cols-2 gap-6">
               <div>
                 <p className="text-white/60 mb-2">Network:</p>
@@ -37,13 +37,13 @@ export default function TokenPage() {
               
               <div>
                 <p className="text-white/60 mb-2">Ticker:</p>
-                <p className="text-green-400 text-3xl font-black" style={{ textShadow: "0 0 10px rgba(34, 197, 94, 0.7)" }}>$SOMETHING</p>
+                <p className="text-green-400 text-2xl font-black sm:text-3xl" style={{ textShadow: "0 0 10px rgba(34, 197, 94, 0.7)" }}>$SOMETHING</p>
               </div>
             </div>
 
             <div className="mt-8 pt-6 border-t border-green-500/20">
               <p className="text-white/60 mb-2">Contract Address:</p>
-              <div className="flex items-center gap-2 bg-black/30 p-3 rounded-lg font-mono text-sm break-all">
+              <div className="flex flex-col items-stretch gap-3 bg-black/30 p-3 rounded-lg font-mono text-sm break-all sm:flex-row sm:items-center sm:gap-2">
                 <code className="text-green-400 flex-1 break-all">{PROJECT_CONFIG.contractAddress}</code>
                 <CopyButton text={PROJECT_CONFIG.contractAddress} label="COPY" />
               </div>
@@ -91,7 +91,7 @@ export default function TokenPage() {
           </div>
 
           {/* How to Buy */}
-          <div className="bg-black/50 p-8 rounded-xl border border-green-500/20">
+          <div className="bg-black/50 p-5 rounded-xl border border-green-500/20 sm:p-8">
             <h3 className="text-2xl font-bold text-green-400 mb-4">How to View/Trade $SOMETHING</h3>
             <ol className="space-y-4 text-white/80">
               <li className="flex items-start gap-3">

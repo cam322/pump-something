@@ -17,25 +17,25 @@ export default function HomePage() {
       <Navigation />
 
       {/* Hero Section */}
-      <section className="relative pt-24 pb-32 px-4">
+      <section className="relative pt-28 pb-20 px-4 md:pt-24 md:pb-32">
         <div className="container mx-auto text-center">
           {/* $SOMETHING Badge */}
-          <div className="inline-flex items-center gap-3 px-4 py-2 bg-green-500/20 border border-green-500/30 rounded-full mb-12">
-            <span className="text-green-400 font-bold text-lg">$SOMETHING • SOLANA</span>
+          <div className="inline-flex items-center gap-3 px-4 py-2 bg-green-500/20 border border-green-500/30 rounded-full mb-8 md:mb-12">
+            <span className="text-green-400 font-bold text-sm sm:text-lg">$SOMETHING • SOLANA</span>
           </div>
 
           {/* Main Title */}
-          <h1 className="text-7xl md:text-8xl font-black mb-8 leading-none">
-            <span className="text-green-400">PUMP</span>
-            <span className="text-white neon-glow">SOMETHING</span>
+          <h1 className="text-5xl sm:text-6xl md:text-8xl font-black mb-8 leading-none break-words">
+            <span className="block text-green-400 sm:inline">PUMP</span>
+            <span className="block text-white neon-glow sm:inline">SOMETHING</span>
           </h1>
 
           {/* Subtitles */}
           <div className="mb-12">
-            <p className="text-3xl md:text-4xl font-bold mb-4 text-white/90">
+            <p className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 text-white/90">
               The internet is always doing SOMETHING.
             </p>
-            <p className="text-2xl md:text-3xl italic text-white/70">
+            <p className="text-xl sm:text-2xl md:text-3xl italic text-white/70">
               Let&apos;s meme it.
             </p>
           </div>
@@ -51,7 +51,7 @@ export default function HomePage() {
               href={PROJECT_CONFIG.telegramUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-3 px-8 py-4 bg-green-500 text-black font-bold text-lg rounded-full hover:bg-green-400 transition-all duration-300"
+              className="inline-flex w-full items-center justify-center gap-3 px-6 py-4 bg-green-500 text-black font-bold text-base rounded-full hover:bg-green-400 transition-all duration-300 sm:w-auto sm:px-8 sm:text-lg"
             >
               JOIN THE COMMUNITY
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -62,7 +62,7 @@ export default function HomePage() {
               href={PROJECT_CONFIG.pumpfunUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-3 px-8 py-4 border-2 border-green-500 text-green-400 font-bold text-lg rounded-full hover:bg-green-500 hover:text-black transition-all duration-300"
+              className="inline-flex w-full items-center justify-center gap-3 px-6 py-4 border-2 border-green-500 text-green-400 font-bold text-base rounded-full hover:bg-green-500 hover:text-black transition-all duration-300 sm:w-auto sm:px-8 sm:text-lg"
             >
               VIEW $SOMETHING
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -79,12 +79,12 @@ export default function HomePage() {
       </section>
 
       {/* Something Is Happening Section */}
-      <section className="py-20 px-4 bg-gradient-to-r from-black to-green-900/20">
+      <section className="py-14 px-4 bg-gradient-to-r from-black to-green-900/20 md:py-20">
         <div className="container mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-5xl md:text-6xl font-black mb-6">
-              <span className="text-green-400">SOMETHING</span>
-              <span className="text-white"> IS HAPPENING.</span>
+            <h2 className="text-4xl sm:text-5xl md:text-6xl font-black mb-6 leading-tight">
+              <span className="block text-green-400 sm:inline">SOMETHING</span>
+              <span className="block text-white sm:inline"> IS HAPPENING.</span>
             </h2>
             <p className="text-white/60 text-xl max-w-2xl mx-auto">
               The internet never stops.
@@ -117,12 +117,12 @@ export default function HomePage() {
       </section>
 
       {/* Mission Section */}
-      <section id="about-section" className="py-20 px-4">
+      <section id="about-section" className="py-14 px-4 md:py-20">
         <div className="container mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-5xl md:text-6xl font-black mb-6">
-              <span className="text-green-400">THE $SOMETHING</span>
-              <span className="text-white">MISSION</span>
+            <h2 className="text-4xl sm:text-5xl md:text-6xl font-black mb-6 leading-tight">
+              <span className="block text-green-400 sm:inline">THE $SOMETHING</span>
+              <span className="block text-white sm:inline"> MISSION</span>
             </h2>
           </div>
 
@@ -176,11 +176,11 @@ export default function HomePage() {
       </section>
 
       {/* What is $SOMETHING? Section */}
-      <section className="py-20 px-4 bg-gradient-to-r from-black to-purple-900/20">
+      <section className="py-14 px-4 bg-gradient-to-r from-black to-purple-900/20 md:py-20">
         <div className="container mx-auto">
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-12">
-              <h2 className="text-5xl md:text-6xl font-black mb-6">
+              <h2 className="text-4xl sm:text-5xl md:text-6xl font-black mb-6 leading-tight">
                 <span className="text-green-400">WHAT</span>
                 <span className="text-white"> IS $SOMETHING?</span>
               </h2>
@@ -224,12 +224,12 @@ export default function HomePage() {
       </section>
 
       {/* Token Section */}
-      <section id="token-section" className="py-20 px-4">
+      <section id="token-section" className="py-14 px-4 md:py-20">
         <div className="container mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-5xl md:text-6xl font-black mb-6">
-              <span className="text-green-400">THE ACTUAL</span>
-              <span className="text-white">$SOMETHING</span>
+            <h2 className="text-4xl sm:text-5xl md:text-6xl font-black mb-6 leading-tight">
+              <span className="block text-green-400 sm:inline">THE ACTUAL</span>
+              <span className="block text-white sm:inline"> $SOMETHING</span>
             </h2>
           </div>
 
@@ -249,7 +249,7 @@ export default function HomePage() {
 
               <div className="mt-8 pt-6 border-t border-green-500/20">
                 <p className="text-white/60 mb-2">Contract Address:</p>
-                <div className="flex items-center gap-2 bg-black/30 p-3 rounded-lg font-mono text-sm break-all">
+                <div className="flex flex-col items-stretch gap-3 bg-black/30 p-3 rounded-lg font-mono text-sm break-all sm:flex-row sm:items-center sm:gap-2">
                   <code className="text-green-400 flex-1 break-all">{PROJECT_CONFIG.contractAddress}</code>
                   <CopyButton text={PROJECT_CONFIG.contractAddress} label="COPY" />
                 </div>

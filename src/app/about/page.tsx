@@ -16,7 +16,7 @@ export default function AboutPage() {
       {/* Header */}
       <section className="pt-24 pb-12 px-4">
         <div className="container mx-auto text-center">
-          <h1 className="text-5xl md:text-6xl font-black mb-6">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-black mb-6">
             <span className="text-green-400">ABOUT</span>
           </h1>
           <p className="text-white/60 text-xl">Understanding the movement</p>
@@ -24,10 +24,10 @@ export default function AboutPage() {
       </section>
 
       {/* Mission Section */}
-      <section className="py-20 px-4">
+      <section className="py-14 px-4 md:py-20">
         <div className="container mx-auto max-w-4xl">
           <div className="mb-12 text-center">
-            <h2 className="text-4xl font-bold mb-6">
+            <h2 className="text-3xl font-bold mb-6 sm:text-4xl">
               <span className="text-green-400">OUR MISSION</span>
             </h2>
             <p className="text-white/70 text-lg">
@@ -80,10 +80,10 @@ export default function AboutPage() {
       </section>
 
       {/* Community Section */}
-      <section className="py-20 px-4 bg-gradient-to-r from-black to-purple-900/20">
+      <section className="py-14 px-4 bg-gradient-to-r from-black to-purple-900/20 md:py-20">
         <div className="container mx-auto max-w-4xl">
           <div className="mb-12 text-center">
-            <h2 className="text-4xl font-bold mb-6">
+            <h2 className="text-3xl font-bold mb-6 sm:text-4xl">
               <span className="text-green-400">COMMUNITY</span>
             </h2>
             <p className="text-white/70 text-lg">
@@ -91,7 +91,7 @@ export default function AboutPage() {
             </p>
           </div>
 
-          <div className="bg-black/50 p-8 rounded-xl border border-green-500/20 mb-12">
+          <div className="bg-black/50 p-5 rounded-xl border border-green-500/20 mb-12 sm:p-8">
             <p className="text-white/80 mb-6">
               Join a community of meme creators, internet culture enthusiasts, and Solana believers who are all doing something together.
             </p>
@@ -148,7 +148,7 @@ export default function AboutPage() {
               href={PROJECT_CONFIG.telegramUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-3 px-8 py-4 bg-green-500 text-black font-bold text-lg rounded-full hover:bg-green-400 transition-all"
+              className="inline-flex w-full items-center justify-center gap-3 px-6 py-4 bg-green-500 text-black font-bold text-base rounded-full hover:bg-green-400 transition-all sm:w-auto sm:px-8 sm:text-lg"
             >
               JOIN THE COMMUNITY ON TELEGRAM
             </Link>
