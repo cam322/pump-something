@@ -1,16 +1,22 @@
+"use client";
+
 import Link from "next/link";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { CopyButton } from "@/components/CopyButton";
 import { SomethingMascot } from "@/components/Mascot";
 import { PROJECT_CONFIG } from "@/config/project";
+import { useMemeGenerator } from "@/components/MemeGeneratorContext";
 
-export const metadata = {
-  title: "Pump Something ($SOMETHING) | Solana Meme Community",
-  description: "The internet is always doing SOMETHING. $SOMETHING is a community-powered meme project built on Solana. Find something. Meme something. Create something.",
-};
+/**
+ * Pump Something homepage
+ * Shows the hero, mission, token info, and transparency sections.
+ * The "DO SOMETHING" button opens the meme generator modal via the context.
+ */
 
 export default function HomePage() {
+  const { openMemeGenerator } = useMemeGenerator();
+
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Navigation */}
@@ -163,13 +169,19 @@ export default function HomePage() {
               <p className="text-white/70 text-sm">Build the community together.</p>
             </div>
 
-            {/* Do Something */}
+            {/* Do Something - now clickable! */}
             <div className="text-center p-6 bg-black/50 rounded-xl border border-green-500/20 hover:border-green-500/50 transition-all">
               <div className="w-16 h-16 mx-auto mb-4 bg-green-500/20 rounded-full flex items-center justify-center">
                 <span className="text-3xl">🚀</span>
               </div>
               <h3 className="text-xl font-bold text-green-400 mb-2">DO SOMETHING</h3>
-              <p className="text-white/70 text-sm">Have fun on Solana.</p>
+              <p className="text-white/70 text-sm">Generate a meme! Let&apos;s do SOMETHING.</p>
+              <button
+                onClick={openMemeGenerator}
+                className="mt-3 px-4 py-2 bg-green-500 text-black font-bold rounded-full hover:bg-green-400 transition-all text-sm"
+              >
+                GENERATE MEME
+              </button>
             </div>
           </div>
         </div>
@@ -286,13 +298,13 @@ export default function HomePage() {
             
             <div className="bg-black/50 p-8 rounded-xl border border-red-500/20">
               <p className="text-white/80 mb-6">
-                $SOMETHING is a community meme token built around entertainment, internet culture, and community participation.
+                $SOMETHING is a community meme token created for entertainment, internet culture, and community participation.
               </p>
               
               <p className="text-white/70 mb-6">
                 It does not promise:
               </p>
-              
+
               <div className="grid md:grid-cols-2 gap-4 mb-8">
                 <div className="bg-red-500/10 p-4 rounded-lg">
                   <p className="text-red-300">❌ Guaranteed profits</p>
