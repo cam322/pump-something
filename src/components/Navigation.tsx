@@ -1,11 +1,7 @@
-"use client";
-
 import Link from "next/link";
-import { useMemeGenerator } from "./MemeGeneratorContext";
+import { openMemeGenerator } from "./MemeGeneratorContext";
 
 export function Navigation() {
-  const { openMemeGenerator } = useMemeGenerator();
-
   return (
     <nav className="fixed top-0 w-full z-50 bg-black/80 backdrop-blur-md border border-green-500/20 rounded-lg mx-4 mt-4">
       <div className="container mx-auto px-4 py-3 flex justify-between items-center">

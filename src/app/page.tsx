@@ -1,22 +1,17 @@
-"use client";
-
 import Link from "next/link";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { CopyButton } from "@/components/CopyButton";
 import { SomethingMascot } from "@/components/Mascot";
 import { PROJECT_CONFIG } from "@/config/project";
-import { useMemeGenerator } from "@/components/MemeGeneratorContext";
+import { openMemeGenerator } from "@/components/MemeGeneratorContext";
 
-/**
- * Pump Something homepage
- * Shows the hero, mission, token info, and transparency sections.
- * The "DO SOMETHING" button opens the meme generator modal via the context.
- */
+export const metadata = {
+  title: "Pump Something ($SOMETHING) | Solana Meme Community",
+  description: "The internet is always doing SOMETHING. $SOMETHING is a community-powered meme project built on Solana. Find something. Meme something. Create something.",
+};
 
 export default function HomePage() {
-  const { openMemeGenerator } = useMemeGenerator();
-
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Navigation */}
