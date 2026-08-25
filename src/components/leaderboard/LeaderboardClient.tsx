@@ -17,6 +17,10 @@ function podiumLabel(index: number) {
   return index === 0 ? "🥇 #1" : index === 1 ? "🥈 #2" : "🥉 #3";
 }
 
+function latestProofLink(entry: LeaderboardEntry) {
+  return entry.recentContributions.find((contribution) => contribution.proofUrl)?.proofUrl;
+}
+
 export function LeaderboardClient({ initialData }: { initialData: LeaderboardResponse }) {
   const [data, setData] = useState(initialData);
   const [showSubmit, setShowSubmit] = useState(false);
@@ -106,9 +110,8 @@ export function LeaderboardClient({ initialData }: { initialData: LeaderboardRes
             <>
               <div className="grid gap-4 md:grid-cols-3 mb-10 items-end">
                 {data.topThree.map((entry, index) => (
-                  <button
+                  <div
                     key={entry.member.id}
-                    onClick={() => setSelectedMember(entry)}
                     className={`text-left rounded-3xl border p-5 bg-black/70 transition-all hover:border-green-400 ${index === 0 ? "md:order-2 border-green-400 shadow-[0_0_35px_rgba(34,197,94,0.22)] md:scale-105" : index === 1 ? "md:order-1 border-cyan-400/40" : "md:order-3 border-purple-400/40"}`}
                   >
                     <div className="text-2xl font-black mb-3">{podiumLabel(index)}</div>
@@ -125,7 +128,17 @@ export function LeaderboardClient({ initialData }: { initialData: LeaderboardRes
                     <p className="text-white/60 mb-3">POINTS</p>
                     <p className="text-white font-bold">{entry.rankTitle}</p>
                     <p className="text-white/60">{entry.verifiedContributions} verified contributions</p>
-                  </button>
+                    <div className="mt-4 flex flex-col gap-2">
+                      {latestProofLink(entry) && (
+                        <Link href={latestProofLink(entry) || "#"} target="_blank" rel="noopener noreferrer" className="rounded-full border border-cyan-400/30 px-4 py-2 text-center text-sm font-bold text-cyan-200 hover:bg-cyan-400/10">
+                          VIEW MEME POST
+                        </Link>
+                      )}
+                      <button onClick={() => setSelectedMember(entry)} className="rounded-full bg-white/10 px-4 py-2 text-sm font-bold text-white hover:bg-white/20">
+                        VIEW PROFILE
+                      </button>
+                    </div>
+                  </div>
                 ))}
               </div>
 
@@ -135,16 +148,21 @@ export function LeaderboardClient({ initialData }: { initialData: LeaderboardRes
                 </div>
                 <div className="divide-y divide-green-500/10">
                   {data.entries.map((entry, index) => (
-                    <button key={entry.member.id} onClick={() => setSelectedMember(entry)} className="w-full grid grid-cols-[auto_1fr] sm:grid-cols-[56px_1fr_120px_130px_190px] gap-3 p-4 text-left hover:bg-green-500/5 transition-all">
+                    <div key={entry.member.id} className="grid grid-cols-[auto_1fr] sm:grid-cols-[56px_1fr_120px_130px_190px] gap-3 p-4 text-left hover:bg-green-500/5 transition-all">
                       <div className="text-green-400 font-black">#{index + 1}</div>
                       <div className="min-w-0">
-                        <p className="font-bold text-white truncate">{entry.member.displayName}</p>
+                        <button onClick={() => setSelectedMember(entry)} className="block max-w-full truncate text-left font-bold text-white hover:text-green-400">{entry.member.displayName}</button>
                         <p className="text-sm text-white/50 truncate">@{usernameFor(entry)}</p>
+                        {latestProofLink(entry) && (
+                          <Link href={latestProofLink(entry) || "#"} target="_blank" rel="noopener noreferrer" className="mt-1 inline-block text-sm font-bold text-cyan-300 underline underline-offset-4">
+                            View meme post
+                          </Link>
+                        )}
                       </div>
                       <div className="font-black text-green-400 sm:text-right">{entry.points.toLocaleString()}<span className="sm:hidden text-white/50"> pts</span></div>
                       <div className="text-white/70 sm:text-right">{entry.verifiedContributions}<span className="sm:hidden"> contributions</span></div>
                       <div className="text-white/80 font-bold sm:text-right col-span-2 sm:col-span-1">{entry.rankTitle}</div>
-                    </button>
+                    </div>
                   ))}
                 </div>
               </div>
@@ -165,6 +183,11 @@ export function LeaderboardClient({ initialData }: { initialData: LeaderboardRes
                   <div key={contribution.id} className="rounded-xl bg-black/50 border border-white/10 p-4">
                     <p className="font-bold text-white">{member.displayName} created SOMETHING.</p>
                     <p className="text-green-400 font-black">+{contribution.pointsAwarded} {contribution.type}</p>
+                    {contribution.proofUrl && (
+                      <Link href={contribution.proofUrl} target="_blank" rel="noopener noreferrer" className="mt-2 inline-block text-sm font-bold text-cyan-300 underline underline-offset-4">
+                        View meme post
+                      </Link>
+                    )}
                   </div>
                 ))}
               </div>
