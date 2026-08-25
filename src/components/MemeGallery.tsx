@@ -13,19 +13,8 @@ export function MemeGallery({ archiveMemes = [] }: { archiveMemes?: MemeData[] }
     : allMemes.filter(meme => meme.category === activeCategory);
 
   return (
-    <section id="memes-section" className="py-20 px-4">
+    <section id="memes-section" className="py-12 px-4 md:py-16">
       <div className="container mx-auto">
-        {/* Section Header */}
-        <div className="text-center mb-12">
-          <h2 className="text-5xl md:text-6xl font-black mb-4">
-            <span className="text-green-400">THE SOMETHING</span>{" "}
-            <span className="text-white">ARCHIVES</span>
-          </h2>
-          <p className="text-white/60 text-xl max-w-2xl mx-auto">
-            Something happened. We memed it. Approved community submissions are added here automatically.
-          </p>
-        </div>
-
         {/* Category Filters */}
         <div className="flex flex-wrap justify-center gap-3 mb-12">
           <button

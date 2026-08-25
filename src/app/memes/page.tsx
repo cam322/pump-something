@@ -25,7 +25,9 @@ export default async function MemesPage() {
             <span className="text-green-400">THE SOMETHING</span>{" "}
             <span className="text-white">ARCHIVES</span>
           </h1>
-          <p className="text-white/60 text-xl">Something happened. We memed it.</p>
+          <p className="text-white/60 text-xl max-w-2xl mx-auto">
+            Something happened. We memed it. Approved community submissions are added here automatically.
+          </p>
         </div>
       </section>
 
