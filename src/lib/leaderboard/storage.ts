@@ -1,0 +1,271 @@
+import { getRankTitle } from "@/config/leaderboard";
+import { identityFieldForPlatform, normalizeUsername, suggestedPointsFor } from "./validation";
+import type { Contribution, LeaderboardEntry, LeaderboardMember, LeaderboardResponse, SubmitContributionInput } from "./types";
+
+const PREFIX = "something:leaderboard";
+const MEMBER_INDEX = `${PREFIX}:members`;
+const CONTRIBUTION_INDEX = `${PREFIX}:contributions`;
+const PENDING_INDEX = `${PREFIX}:contributions:pending`;
+const APPROVED_INDEX = `${PREFIX}:contributions:approved`;
+
+class StorageNotConfiguredError extends Error {
+  constructor() {
+    super("Leaderboard storage is not configured");
+  }
+}
+
+function redisConfig() {
+  const url = process.env.UPSTASH_REDIS_REST_URL;
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+  if (!url || !token) return null;
+  return { url: url.replace(/\/$/, ""), token };
+}
+
+export function isLeaderboardStorageConfigured(): boolean {
+  return Boolean(redisConfig());
+}
+
+async function redisCommand<T = unknown>(command: unknown[]): Promise<T> {
+  const config = redisConfig();
+  if (!config) throw new StorageNotConfiguredError();
+
+  const response = await fetch(config.url, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${config.token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(command),
+    cache: "no-store",
+  });
+
+  if (!response.ok) {
+    throw new Error(`Redis command failed: ${response.status}`);
+  }
+
+  const data = await response.json() as { result?: T; error?: string };
+  if (data.error) throw new Error(data.error);
+  return data.result as T;
+}
+
+async function getJson<T>(key: string): Promise<T | null> {
+  const value = await redisCommand<string | null>(["GET", key]);
+  if (!value) return null;
+  return JSON.parse(value) as T;
+}
+
+async function setJson<T>(key: string, value: T): Promise<void> {
+  await redisCommand(["SET", key, JSON.stringify(value)]);
+}
+
+function memberKey(id: string) {
+  return `${PREFIX}:member:${id}`;
+}
+
+function contributionKey(id: string) {
+  return `${PREFIX}:contribution:${id}`;
+}
+
+function newId(prefix: string) {
+  return `${prefix}_${crypto.randomUUID()}`;
+}
+
+async function getMembersByIds(ids: string[]): Promise<LeaderboardMember[]> {
+  if (ids.length === 0) return [];
+  const values = await redisCommand<Array<string | null>>(["MGET", ...ids.map(memberKey)]);
+  return values.filter(Boolean).map((value) => JSON.parse(value as string) as LeaderboardMember);
+}
+
+async function getContributionsByIds(ids: string[]): Promise<Contribution[]> {
+  if (ids.length === 0) return [];
+  const values = await redisCommand<Array<string | null>>(["MGET", ...ids.map(contributionKey)]);
+  return values.filter(Boolean).map((value) => JSON.parse(value as string) as Contribution);
+}
+
+export async function findOrCreateMember(input: SubmitContributionInput): Promise<LeaderboardMember> {
+  const username = normalizeUsername(input.username);
+  const memberIds = await redisCommand<string[]>(["SMEMBERS", MEMBER_INDEX]);
+  const members = await getMembersByIds(memberIds);
+  const identityField = identityFieldForPlatform(input.platform);
+
+  const existing = members.find((member) => {
+    const samePlatformUser = member[identityField] && normalizeUsername(member[identityField] || "") === username;
+    const sameWallet = input.walletAddress && member.walletAddress === input.walletAddress;
+    return samePlatformUser || sameWallet;
+  });
+
+  if (existing) {
+    const updated: LeaderboardMember = {
+      ...existing,
+      displayName: input.displayName,
+      [identityField]: username,
+      walletAddress: input.walletAddress || existing.walletAddress,
+    };
+    await setJson(memberKey(updated.id), updated);
+    return updated;
+  }
+
+  const member: LeaderboardMember = {
+    id: newId("member"),
+    displayName: input.displayName,
+    platform: input.platform,
+    [identityField]: username,
+    walletAddress: input.walletAddress,
+    createdAt: new Date().toISOString(),
+  };
+
+  await setJson(memberKey(member.id), member);
+  await redisCommand(["SADD", MEMBER_INDEX, member.id]);
+  return member;
+}
+
+export async function createPendingContribution(input: SubmitContributionInput): Promise<Contribution> {
+  const member = await findOrCreateMember(input);
+  const contributionIds = await redisCommand<string[]>(["SMEMBERS", CONTRIBUTION_INDEX]);
+  const contributions = await getContributionsByIds(contributionIds);
+  const normalizedProof = input.proofUrl?.trim().toLowerCase();
+
+  const duplicate = contributions.find((item) =>
+    item.memberId === member.id &&
+    item.status === "PENDING" &&
+    item.type === input.type &&
+    item.description.trim().toLowerCase() === input.description.trim().toLowerCase() &&
+    (item.proofUrl || "").trim().toLowerCase() === (normalizedProof || "")
+  );
+
+  if (duplicate) return duplicate;
+
+  const contribution: Contribution = {
+    id: newId("contribution"),
+    memberId: member.id,
+    type: input.type,
+    description: input.description,
+    proofUrl: input.proofUrl,
+    pointsAwarded: 0,
+    suggestedPoints: suggestedPointsFor(input.type),
+    status: "PENDING",
+    submittedAt: new Date().toISOString(),
+  };
+
+  await setJson(contributionKey(contribution.id), contribution);
+  await redisCommand(["SADD", CONTRIBUTION_INDEX, contribution.id]);
+  await redisCommand(["SADD", PENDING_INDEX, contribution.id]);
+  return contribution;
+}
+
+export async function getLeaderboard(limit = 50): Promise<LeaderboardResponse> {
+  if (!isLeaderboardStorageConfigured()) {
+    return { entries: [], topThree: [], recentActivity: [], storageConfigured: false };
+  }
+
+  const approvedIds = await redisCommand<string[]>(["SMEMBERS", APPROVED_INDEX]);
+  const approvedContributions = await getContributionsByIds(approvedIds);
+  const memberIds = Array.from(new Set(approvedContributions.map((item) => item.memberId)));
+  const members = await getMembersByIds(memberIds);
+  const memberMap = new Map(members.map((member) => [member.id, member]));
+
+  const entries = Array.from(memberMap.values()).map((member) => {
+    const recentContributions = approvedContributions
+      .filter((item) => item.memberId === member.id && item.status === "APPROVED")
+      .sort((a, b) => (b.verifiedAt || "").localeCompare(a.verifiedAt || ""));
+    const points = recentContributions.reduce((total, item) => total + item.pointsAwarded, 0);
+    return {
+      member,
+      points,
+      verifiedContributions: recentContributions.length,
+      rankTitle: getRankTitle(points),
+      recentContributions: recentContributions.slice(0, 5),
+    } satisfies LeaderboardEntry;
+  }).sort((a, b) => b.points - a.points || b.verifiedContributions - a.verifiedContributions)
+    .slice(0, limit);
+
+  const recentActivity = approvedContributions
+    .filter((item) => item.status === "APPROVED")
+    .sort((a, b) => (b.verifiedAt || "").localeCompare(a.verifiedAt || ""))
+    .slice(0, 10)
+    .map((contribution) => {
+      const member = memberMap.get(contribution.memberId);
+      return member ? { member, contribution } : null;
+    })
+    .filter(Boolean) as LeaderboardResponse["recentActivity"];
+
+  return {
+    entries,
+    topThree: entries.slice(0, 3),
+    recentActivity,
+    storageConfigured: true,
+  };
+}
+
+export async function getMemberProfile(id: string): Promise<LeaderboardEntry | null> {
+  const member = await getJson<LeaderboardMember>(memberKey(id));
+  if (!member) return null;
+
+  const approvedIds = await redisCommand<string[]>(["SMEMBERS", APPROVED_INDEX]);
+  const approvedContributions = (await getContributionsByIds(approvedIds))
+    .filter((item) => item.memberId === id && item.status === "APPROVED")
+    .sort((a, b) => (b.verifiedAt || "").localeCompare(a.verifiedAt || ""));
+  const points = approvedContributions.reduce((total, item) => total + item.pointsAwarded, 0);
+
+  return {
+    member,
+    points,
+    verifiedContributions: approvedContributions.length,
+    rankTitle: getRankTitle(points),
+    recentContributions: approvedContributions.slice(0, 20),
+  };
+}
+
+export async function getPendingSubmissions(): Promise<Array<{ member: LeaderboardMember; contribution: Contribution }>> {
+  const pendingIds = await redisCommand<string[]>(["SMEMBERS", PENDING_INDEX]);
+  const contributions = (await getContributionsByIds(pendingIds))
+    .filter((item) => item.status === "PENDING")
+    .sort((a, b) => b.submittedAt.localeCompare(a.submittedAt));
+  const members = await getMembersByIds(Array.from(new Set(contributions.map((item) => item.memberId))));
+  const memberMap = new Map(members.map((member) => [member.id, member]));
+
+  return contributions.map((contribution) => ({ member: memberMap.get(contribution.memberId), contribution }))
+    .filter((item): item is { member: LeaderboardMember; contribution: Contribution } => Boolean(item.member));
+}
+
+export async function approveContribution(id: string, points: number, verifier: string, notes?: string): Promise<Contribution> {
+  const contribution = await getJson<Contribution>(contributionKey(id));
+  if (!contribution) throw new Error("Contribution not found");
+  if (contribution.status !== "PENDING") throw new Error("Contribution has already been reviewed");
+  if (!Number.isInteger(points) || points < 0 || points > 10000) throw new Error("Invalid points value");
+
+  const updated: Contribution = {
+    ...contribution,
+    status: "APPROVED",
+    pointsAwarded: points,
+    verifiedAt: new Date().toISOString(),
+    verifier,
+    notes,
+  };
+
+  await setJson(contributionKey(id), updated);
+  await redisCommand(["SREM", PENDING_INDEX, id]);
+  await redisCommand(["SADD", APPROVED_INDEX, id]);
+  return updated;
+}
+
+export async function rejectContribution(id: string, verifier: string, notes?: string): Promise<Contribution> {
+  const contribution = await getJson<Contribution>(contributionKey(id));
+  if (!contribution) throw new Error("Contribution not found");
+  if (contribution.status !== "PENDING") throw new Error("Contribution has already been reviewed");
+
+  const updated: Contribution = {
+    ...contribution,
+    status: "REJECTED",
+    pointsAwarded: 0,
+    verifiedAt: new Date().toISOString(),
+    verifier,
+    notes,
+  };
+
+  await setJson(contributionKey(id), updated);
+  await redisCommand(["SREM", PENDING_INDEX, id]);
+  return updated;
+}
+
+export { StorageNotConfiguredError };

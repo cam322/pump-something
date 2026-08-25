@@ -31,6 +31,12 @@ export function Navigation() {
           >
             MEMES
           </Link>
+          <Link
+            href="/leaderboard"
+            className="text-white hover:text-green-400 transition-colors font-medium"
+          >
+            🏆 LEADERBOARD
+          </Link>
           <a
             href="#community-section"
             className="text-white hover:text-green-400 transition-colors font-medium"

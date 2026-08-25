@@ -39,6 +39,14 @@ export function MemeGenerator({ onClose, onMemeGenerated }: MemeGeneratorProps) 
   const [generatedMeme, setGeneratedMeme] = useState<GeneratedMeme | null>(null);
   const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [showCommunitySubmit, setShowCommunitySubmit] = useState(false);
+  const [communityStatus, setCommunityStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
+  const [communityMessage, setCommunityMessage] = useState("");
+  const [communityForm, setCommunityForm] = useState({
+    displayName: "",
+    username: "",
+    platform: "X",
+  });
 
   // Loading message rotation
   useEffect(() => {
@@ -168,7 +176,41 @@ export function MemeGenerator({ onClose, onMemeGenerated }: MemeGeneratorProps) 
     setTopic("");
     setSelectedCategory("breaking");
     setError(null);
+    setShowCommunitySubmit(false);
+    setCommunityStatus("idle");
+    setCommunityMessage("");
     setStep("input");
+  };
+
+  const submitMemeToCommunity = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!generatedMeme) return;
+
+    setCommunityStatus("submitting");
+    setCommunityMessage("");
+
+    const response = await fetch("/api/contributions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        displayName: communityForm.displayName,
+        username: communityForm.username,
+        platform: communityForm.platform,
+        type: "MEME",
+        description: `Generated a $SOMETHING meme about: ${generatedMeme.topic}`,
+        proofUrl: generatedMeme.imageUrl,
+      }),
+    });
+
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      setCommunityStatus("error");
+      setCommunityMessage(result.error || "Something went wrong while submitting something.");
+      return;
+    }
+
+    setCommunityStatus("success");
+    setCommunityMessage("YOUR MEME IS WAITING FOR REVIEW.");
   };
 
   if (step === "input") {
@@ -338,6 +380,40 @@ export function MemeGenerator({ onClose, onMemeGenerated }: MemeGeneratorProps) 
           >
             🐦 SHARE ON X
           </button>
+        </div>
+
+        <div className="w-full max-w-2xl mb-8 rounded-2xl border border-green-500/20 bg-black/50 p-4">
+          {!showCommunitySubmit ? (
+            <button
+              onClick={() => setShowCommunitySubmit(true)}
+              className="w-full px-6 py-3 bg-cyan-400/20 text-cyan-200 border border-cyan-400/30 rounded-lg hover:bg-cyan-400/30 transition-all font-bold"
+            >
+              SUBMIT TO COMMUNITY
+            </button>
+          ) : (
+            <form onSubmit={submitMemeToCommunity} className="space-y-3">
+              <div>
+                <h3 className="text-green-400 font-black text-lg">SUBMIT TO COMMUNITY</h3>
+                <p className="text-white/60 text-sm">This creates a PENDING MEME contribution. Admin approval is required before points are awarded.</p>
+              </div>
+              {communityStatus === "success" && <div className="rounded-lg border border-green-500/30 bg-green-500/10 p-3 text-green-300 font-bold">SOMETHING SUBMITTED. 🟢<br />{communityMessage}</div>}
+              {communityStatus === "error" && <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-red-300 font-bold">{communityMessage}</div>}
+              <div className="grid gap-3 sm:grid-cols-3">
+                <input required value={communityForm.displayName} onChange={(e) => setCommunityForm({ ...communityForm, displayName: e.target.value })} placeholder="Display name" className="rounded-lg border border-white/10 bg-white/10 p-3 text-white" />
+                <input required value={communityForm.username} onChange={(e) => setCommunityForm({ ...communityForm, username: e.target.value })} placeholder="Username" className="rounded-lg border border-white/10 bg-white/10 p-3 text-white" />
+                <select value={communityForm.platform} onChange={(e) => setCommunityForm({ ...communityForm, platform: e.target.value })} className="rounded-lg border border-white/10 bg-black p-3 text-white">
+                  <option>X</option>
+                  <option>Telegram</option>
+                  <option>Discord</option>
+                  <option>Other</option>
+                </select>
+              </div>
+              <p className="text-yellow-300 text-xs font-bold">NEVER SUBMIT YOUR SEED PHRASE OR PRIVATE KEY.</p>
+              <button disabled={communityStatus === "submitting" || communityStatus === "success"} className="w-full rounded-lg bg-green-500 px-6 py-3 font-black text-black disabled:opacity-60">
+                {communityStatus === "submitting" ? "SUBMITTING..." : "SUBMIT SOMETHING"}
+              </button>
+            </form>
+          )}
         </div>
 
         {/* Additional Options */}
