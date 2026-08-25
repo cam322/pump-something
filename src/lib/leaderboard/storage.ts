@@ -231,7 +231,7 @@ export async function getApprovedArchiveMemes(): Promise<Array<{
 
   const approvedIds = await redisCommand<string[]>(["SMEMBERS", APPROVED_INDEX]);
   const approvedContributions = (await getContributionsByIds(approvedIds))
-    .filter((item) => item.status === "APPROVED" && item.archiveImageDataUrl)
+    .filter((item) => item.status === "APPROVED")
     .sort((a, b) => (b.verifiedAt || "").localeCompare(a.verifiedAt || ""));
   const members = await getMembersByIds(Array.from(new Set(approvedContributions.map((item) => item.memberId))));
   const memberMap = new Map(members.map((member) => [member.id, member]));
@@ -245,7 +245,7 @@ export async function getApprovedArchiveMemes(): Promise<Array<{
     return {
       id: `approved-${contribution.id}`,
       title: `${member?.displayName || "Community"} did SOMETHING`,
-      image: contribution.archiveImageDataUrl as string,
+      image: contribution.archiveImageDataUrl || "/memes/placeholder.png",
       category,
       caption: contribution.description,
       date: contribution.verifiedAt || contribution.submittedAt,
