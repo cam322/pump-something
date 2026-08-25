@@ -56,6 +56,15 @@ export function isSocialProofUrl(value: string): boolean {
   }
 }
 
+function sanitizeArchiveImage(value: unknown): string | undefined {
+  if (typeof value !== "string" || !value) return undefined;
+  if (!/^data:image\/(png|jpe?g|webp|gif);base64,[A-Za-z0-9+/=]+$/i.test(value)) return undefined;
+  const maxBytes = 900_000;
+  const estimatedBytes = Math.ceil((value.length * 3) / 4);
+  if (estimatedBytes > maxBytes) return undefined;
+  return value;
+}
+
 export function validateSubmission(body: Record<string, unknown>): { ok: true; data: SubmitContributionInput } | { ok: false; error: string } {
   const displayName = sanitizeText(body.displayName, 60);
   const username = sanitizeText(body.username, 60);
@@ -63,6 +72,7 @@ export function validateSubmission(body: Record<string, unknown>): { ok: true; d
   const type = body.type;
   const description = sanitizeText(body.description, 500);
   const proofUrl = sanitizeText(body.proofUrl, 300);
+  const archiveImageDataUrl = sanitizeArchiveImage(body.archiveImageDataUrl);
   const walletAddress = sanitizeText(body.walletAddress, 80);
 
   if (displayName.length < 2) return { ok: false, error: "Display name is required." };
@@ -92,6 +102,7 @@ export function validateSubmission(body: Record<string, unknown>): { ok: true; d
       type,
       description,
       proofUrl,
+      archiveImageDataUrl,
       walletAddress: walletAddress || undefined,
     },
   };

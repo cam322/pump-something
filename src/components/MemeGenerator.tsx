@@ -47,7 +47,9 @@ export function MemeGenerator({ onClose, onMemeGenerated }: MemeGeneratorProps) 
     username: "",
     platform: "X",
     proofUrl: "",
+    archiveImageDataUrl: "",
   });
+  const [communityArchiveImageName, setCommunityArchiveImageName] = useState("");
 
   // Loading message rotation
   useEffect(() => {
@@ -200,6 +202,7 @@ export function MemeGenerator({ onClose, onMemeGenerated }: MemeGeneratorProps) 
         type: "MEME",
         description: `Generated a $SOMETHING meme about: ${generatedMeme.topic}`,
         proofUrl: communityForm.proofUrl,
+        archiveImageDataUrl: communityForm.archiveImageDataUrl,
       }),
     });
 
@@ -212,6 +215,28 @@ export function MemeGenerator({ onClose, onMemeGenerated }: MemeGeneratorProps) 
 
     setCommunityStatus("success");
     setCommunityMessage("YOUR MEME IS WAITING FOR REVIEW.");
+  };
+
+  const handleCommunityArchiveUpload = (file: File | undefined) => {
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      setCommunityStatus("error");
+      setCommunityMessage("Upload must be an image file.");
+      return;
+    }
+    if (file.size > 700_000) {
+      setCommunityStatus("error");
+      setCommunityMessage("Archive upload must be under 700 KB for now.");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      setCommunityForm((current) => ({ ...current, archiveImageDataUrl: String(reader.result || "") }));
+      setCommunityArchiveImageName(file.name);
+      setCommunityStatus("idle");
+      setCommunityMessage("");
+    };
+    reader.readAsDataURL(file);
   };
 
   if (step === "input") {
@@ -411,6 +436,9 @@ export function MemeGenerator({ onClose, onMemeGenerated }: MemeGeneratorProps) 
               </div>
               <input required value={communityForm.proofUrl} onChange={(e) => setCommunityForm({ ...communityForm, proofUrl: e.target.value })} placeholder="Social post link: https://x.com/yourname/status/..." className="w-full rounded-lg border border-white/10 bg-white/10 p-3 text-white" />
               <p className="text-cyan-200 text-xs font-bold">To qualify, submit a public social media post link to the meme you posted. A raw generated image URL is not enough.</p>
+              <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" onChange={(e) => handleCommunityArchiveUpload(e.target.files?.[0])} className="w-full rounded-lg border border-white/10 bg-white/10 p-3 text-white file:mr-3 file:rounded-full file:border-0 file:bg-green-500 file:px-4 file:py-2 file:font-bold file:text-black" />
+              <p className="text-white/50 text-xs">Optional: upload the meme image for the Something Archives. If approved, it will appear in the Memes tab. Max 700 KB.</p>
+              {communityArchiveImageName && <p className="text-green-400 text-xs font-bold">Archive upload ready: {communityArchiveImageName}</p>}
               <p className="text-yellow-300 text-xs font-bold">NEVER SUBMIT YOUR SEED PHRASE OR PRIVATE KEY.</p>
               <button disabled={communityStatus === "submitting" || communityStatus === "success"} className="w-full rounded-lg bg-green-500 px-6 py-3 font-black text-black disabled:opacity-60">
                 {communityStatus === "submitting" ? "SUBMITTING..." : "SUBMIT SOMETHING"}

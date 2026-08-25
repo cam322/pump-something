@@ -131,6 +131,14 @@ export function AdminContributionsClient() {
                   <p className="text-white/60">{member.platform} · @{member.telegramUsername || member.xUsername || member.discordUsername || member.otherUsername}</p>
                   <p className="mt-4 text-white/80 whitespace-pre-wrap">{contribution.description}</p>
                   {contribution.proofUrl && <Link href={contribution.proofUrl} target="_blank" rel="noopener noreferrer" className="mt-3 inline-block text-cyan-300 underline break-all">{contribution.proofUrl}</Link>}
+                  {contribution.archiveImageDataUrl && (
+                    <div className="mt-4 rounded-2xl border border-green-500/20 bg-black/50 p-3">
+                      <p className="mb-2 text-sm font-black text-green-400">ARCHIVE IMAGE PREVIEW</p>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={contribution.archiveImageDataUrl} alt="Submitted meme archive preview" className="max-h-64 rounded-xl object-contain" />
+                      <p className="mt-2 text-xs text-white/50">Approving this contribution adds this image to the Something Archives.</p>
+                    </div>
+                  )}
                 </div>
                 <div className="space-y-3">
                   <label className="block text-white/80 font-bold">

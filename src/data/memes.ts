@@ -15,6 +15,8 @@ export interface MemeData {
   category: MemeCategory;
   caption?: string;
   date?: string;
+  proofUrl?: string;
+  creatorName?: string;
 }
 
 // Meme gallery data - all images stored in public/memes/

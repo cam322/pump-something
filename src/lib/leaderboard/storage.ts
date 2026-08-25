@@ -141,6 +141,7 @@ export async function createPendingContribution(input: SubmitContributionInput):
     type: input.type,
     description: input.description,
     proofUrl: input.proofUrl,
+    archiveImageDataUrl: input.archiveImageDataUrl,
     pointsAwarded: 0,
     suggestedPoints: suggestedPointsFor(input.type),
     status: "PENDING",
@@ -214,6 +215,44 @@ export async function getMemberProfile(id: string): Promise<LeaderboardEntry | n
     rankTitle: getRankTitle(points),
     recentContributions: approvedContributions.slice(0, 20),
   };
+}
+
+export async function getApprovedArchiveMemes(): Promise<Array<{
+  id: string;
+  title: string;
+  image: string;
+  category: "internet" | "gaming" | "crypto" | "breaking" | "community";
+  caption: string;
+  date?: string;
+  proofUrl?: string;
+  creatorName: string;
+}>> {
+  if (!isLeaderboardStorageConfigured()) return [];
+
+  const approvedIds = await redisCommand<string[]>(["SMEMBERS", APPROVED_INDEX]);
+  const approvedContributions = (await getContributionsByIds(approvedIds))
+    .filter((item) => item.status === "APPROVED" && item.archiveImageDataUrl)
+    .sort((a, b) => (b.verifiedAt || "").localeCompare(a.verifiedAt || ""));
+  const members = await getMembersByIds(Array.from(new Set(approvedContributions.map((item) => item.memberId))));
+  const memberMap = new Map(members.map((member) => [member.id, member]));
+
+  return approvedContributions.map((contribution) => {
+    const member = memberMap.get(contribution.memberId);
+    const category = contribution.type === "COMMUNITY" || contribution.type === "CONTEST" ? "community"
+      : contribution.type === "MEME" || contribution.type === "GIF" || contribution.type === "VIDEO" || contribution.type === "ART" ? "internet"
+        : "crypto";
+
+    return {
+      id: `approved-${contribution.id}`,
+      title: `${member?.displayName || "Community"} did SOMETHING`,
+      image: contribution.archiveImageDataUrl as string,
+      category,
+      caption: contribution.description,
+      date: contribution.verifiedAt || contribution.submittedAt,
+      proofUrl: contribution.proofUrl,
+      creatorName: member?.displayName || "Community",
+    };
+  });
 }
 
 export async function getPendingSubmissions(): Promise<Array<{ member: LeaderboardMember; contribution: Contribution }>> {

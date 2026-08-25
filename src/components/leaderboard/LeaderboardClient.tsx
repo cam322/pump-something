@@ -34,8 +34,10 @@ export function LeaderboardClient({ initialData }: { initialData: LeaderboardRes
     type: "MEME" as ContributionType,
     description: "",
     proofUrl: "",
+    archiveImageDataUrl: "",
     walletAddress: "",
   });
+  const [archiveImageName, setArchiveImageName] = useState("");
 
   async function refreshLeaderboard() {
     const response = await fetch("/api/leaderboard", { cache: "no-store" });
@@ -62,8 +64,31 @@ export function LeaderboardClient({ initialData }: { initialData: LeaderboardRes
 
     setSubmitState("success");
     setMessage("YOUR CONTRIBUTION IS WAITING FOR REVIEW.");
-    setForm((current) => ({ ...current, description: "", proofUrl: "", walletAddress: "" }));
+    setForm((current) => ({ ...current, description: "", proofUrl: "", archiveImageDataUrl: "", walletAddress: "" }));
+    setArchiveImageName("");
     await refreshLeaderboard();
+  }
+
+  function handleArchiveUpload(file: File | undefined) {
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      setSubmitState("error");
+      setMessage("Upload must be an image file.");
+      return;
+    }
+    if (file.size > 700_000) {
+      setSubmitState("error");
+      setMessage("Archive upload must be under 700 KB for now.");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      setForm((current) => ({ ...current, archiveImageDataUrl: String(reader.result || "") }));
+      setArchiveImageName(file.name);
+      setMessage("");
+      setSubmitState("idle");
+    };
+    reader.readAsDataURL(file);
   }
 
   return (
@@ -229,6 +254,9 @@ export function LeaderboardClient({ initialData }: { initialData: LeaderboardRes
             <label className="block text-white/80 font-bold mt-4">DESCRIPTION<textarea required minLength={10} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="mt-2 min-h-28 w-full rounded-xl bg-white/10 border border-white/10 p-3 text-white" /></label>
             <label className="block text-white/80 font-bold mt-4">SOCIAL POST LINK REQUIRED<input required value={form.proofUrl} onChange={(e) => setForm({ ...form, proofUrl: e.target.value })} placeholder="https://x.com/yourname/status/..." className="mt-2 w-full rounded-xl bg-white/10 border border-white/10 p-3 text-white" /></label>
             <p className="mt-2 text-cyan-200 text-sm">To qualify, this must be a public social media link to the meme or contribution you posted: X/Twitter, Telegram, Discord, Instagram, TikTok, Reddit, YouTube, Facebook, Threads, or Bluesky.</p>
+            <label className="block text-white/80 font-bold mt-4">UPLOAD MEME FOR THE ARCHIVES <span className="text-white/40">OPTIONAL</span><input type="file" accept="image/png,image/jpeg,image/webp,image/gif" onChange={(e) => handleArchiveUpload(e.target.files?.[0])} className="mt-2 w-full rounded-xl bg-white/10 border border-white/10 p-3 text-white file:mr-3 file:rounded-full file:border-0 file:bg-green-500 file:px-4 file:py-2 file:font-bold file:text-black" /></label>
+            <p className="mt-2 text-white/50 text-sm">If approved, this uploaded meme image will be added to the Something Archives in the Memes tab. Max 700 KB for now.</p>
+            {archiveImageName && <p className="mt-2 text-green-400 text-sm font-bold">Archive upload ready: {archiveImageName}</p>}
             <label className="block text-white/80 font-bold mt-4">WALLET ADDRESS <span className="text-white/40">OPTIONAL</span><input value={form.walletAddress} onChange={(e) => setForm({ ...form, walletAddress: e.target.value })} className="mt-2 w-full rounded-xl bg-white/10 border border-white/10 p-3 text-white" /></label>
             <p className="mt-3 text-yellow-300 font-bold">NEVER SUBMIT YOUR SEED PHRASE OR PRIVATE KEY.</p>
             <button disabled={submitState === "submitting"} className="mt-6 w-full rounded-full bg-green-500 px-6 py-4 text-black font-black hover:bg-green-400 disabled:opacity-60">

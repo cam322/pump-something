@@ -1,16 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import { memeGallery, MemeData, memeCategories } from "@/data/memes";
 
-export function MemeGallery() {
+export function MemeGallery({ archiveMemes = [] }: { archiveMemes?: MemeData[] }) {
   const [selectedMeme, setSelectedMeme] = useState<MemeData | null>(null);
   const [activeCategory, setActiveCategory] = useState<string>("all");
+  const allMemes = [...archiveMemes, ...memeGallery];
 
   const filteredMemes = activeCategory === "all"
-    ? memeGallery
-    : memeGallery.filter(meme => meme.category === activeCategory);
+    ? allMemes
+    : allMemes.filter(meme => meme.category === activeCategory);
 
   return (
     <section id="memes-section" className="py-20 px-4">
@@ -22,7 +22,7 @@ export function MemeGallery() {
             <span className="text-white">ARCHIVES</span>
           </h2>
           <p className="text-white/60 text-xl max-w-2xl mx-auto">
-            Something happened. We memed it.
+            Something happened. We memed it. Approved community submissions are added here automatically.
           </p>
         </div>
 
@@ -64,11 +64,11 @@ export function MemeGallery() {
             >
               <div className="aspect-square relative">
                 {meme.image ? (
-                  <Image
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
                     src={meme.image}
                     alt={meme.title}
-                    fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-300"
+                    className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                 ) : (
                   <div className="w-full h-full bg-gradient-to-br from-green-500/20 to-purple-500/20 flex items-center justify-center">
@@ -82,6 +82,9 @@ export function MemeGallery() {
                 </h3>
                 {meme.caption && (
                   <p className="text-white/60 text-sm mt-1">{meme.caption}</p>
+                )}
+                {meme.creatorName && (
+                  <p className="text-green-400 text-xs font-bold mt-2">APPROVED FROM {meme.creatorName}</p>
                 )}
               </div>
             </div>
@@ -99,11 +102,11 @@ export function MemeGallery() {
               onClick={(e) => e.stopPropagation()}
             >
               <div className="relative aspect-video">
-                <Image
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
                   src={selectedMeme.image || "/memes/placeholder.png"}
                   alt={selectedMeme.title}
-                  fill
-                  className="object-contain"
+                  className="h-full w-full object-contain"
                 />
               </div>
               <div className="p-6">
@@ -113,12 +116,24 @@ export function MemeGallery() {
                 {selectedMeme.caption && (
                   <p className="text-white/70 mb-4">{selectedMeme.caption}</p>
                 )}
-                <button
-                  onClick={() => setSelectedMeme(null)}
-                  className="px-4 py-2 bg-green-500 text-black rounded-full font-bold hover:bg-green-400 transition-colors"
-                >
-                  CLOSE
-                </button>
+                <div className="flex flex-col gap-3 sm:flex-row">
+                  {selectedMeme.proofUrl && (
+                    <a
+                      href={selectedMeme.proofUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-4 py-2 bg-cyan-400/20 border border-cyan-400/30 text-cyan-200 rounded-full font-bold hover:bg-cyan-400/30 transition-colors text-center"
+                    >
+                      VIEW ORIGINAL POST
+                    </a>
+                  )}
+                  <button
+                    onClick={() => setSelectedMeme(null)}
+                    className="px-4 py-2 bg-green-500 text-black rounded-full font-bold hover:bg-green-400 transition-colors"
+                  >
+                    CLOSE
+                  </button>
+                </div>
               </div>
             </div>
           </div>

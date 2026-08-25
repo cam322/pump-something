@@ -18,6 +18,7 @@ export interface Contribution {
   type: ContributionType;
   description: string;
   proofUrl?: string;
+  archiveImageDataUrl?: string;
   pointsAwarded: number;
   suggestedPoints: number;
   status: ContributionStatus;
@@ -52,5 +53,6 @@ export interface SubmitContributionInput {
   type: ContributionType;
   description: string;
   proofUrl?: string;
+  archiveImageDataUrl?: string;
   walletAddress?: string;
 }
