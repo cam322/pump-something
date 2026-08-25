@@ -26,6 +26,36 @@ export function suggestedPointsFor(type: ContributionType): number {
   return DEFAULT_POINT_VALUES[type];
 }
 
+const SOCIAL_PROOF_HOSTS = [
+  "x.com",
+  "twitter.com",
+  "mobile.twitter.com",
+  "t.me",
+  "telegram.me",
+  "discord.com",
+  "discordapp.com",
+  "instagram.com",
+  "threads.net",
+  "tiktok.com",
+  "reddit.com",
+  "youtube.com",
+  "youtu.be",
+  "facebook.com",
+  "fb.watch",
+  "bsky.app",
+];
+
+export function isSocialProofUrl(value: string): boolean {
+  try {
+    const url = new URL(value);
+    if (url.protocol !== "https:" && url.protocol !== "http:") return false;
+    const hostname = url.hostname.replace(/^www\./, "").toLowerCase();
+    return SOCIAL_PROOF_HOSTS.some((host) => hostname === host || hostname.endsWith(`.${host}`));
+  } catch {
+    return false;
+  }
+}
+
 export function validateSubmission(body: Record<string, unknown>): { ok: true; data: SubmitContributionInput } | { ok: false; error: string } {
   const displayName = sanitizeText(body.displayName, 60);
   const username = sanitizeText(body.username, 60);
@@ -41,8 +71,12 @@ export function validateSubmission(body: Record<string, unknown>): { ok: true; d
   if (!isValidContributionType(type)) return { ok: false, error: "Choose a valid contribution type." };
   if (description.length < 10) return { ok: false, error: "Description must be at least 10 characters." };
 
-  if (proofUrl && !/^https?:\/\//i.test(proofUrl)) {
-    return { ok: false, error: "Proof URL must start with http:// or https://." };
+  if (!proofUrl) {
+    return { ok: false, error: "A social media proof link is required." };
+  }
+
+  if (!isSocialProofUrl(proofUrl)) {
+    return { ok: false, error: "Proof must be a social media post link to the meme or contribution." };
   }
 
   if (walletAddress && !/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(walletAddress)) {
@@ -57,7 +91,7 @@ export function validateSubmission(body: Record<string, unknown>): { ok: true; d
       platform,
       type,
       description,
-      proofUrl: proofUrl || undefined,
+      proofUrl,
       walletAddress: walletAddress || undefined,
     },
   };

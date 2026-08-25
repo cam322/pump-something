@@ -75,6 +75,7 @@ export function LeaderboardClient({ initialData }: { initialData: LeaderboardRes
           <p className="text-2xl sm:text-3xl font-black text-white mb-4">WHO&apos;S ACTUALLY DOING SOMETHING?</p>
           <p className="max-w-2xl mx-auto text-white/70 text-lg mb-8">
             Earn points by contributing to the $SOMETHING community.
+            Post your meme or contribution on social media, then submit the post link for review.
           </p>
           <button
             onClick={() => setShowSubmit(true)}
@@ -188,7 +189,7 @@ export function LeaderboardClient({ initialData }: { initialData: LeaderboardRes
             <div className="flex items-start justify-between gap-4 mb-5">
               <div>
                 <h2 className="text-3xl font-black text-green-400">SUBMIT SOMETHING</h2>
-                <p className="text-white/60">Your contribution goes pending until an admin reviews it.</p>
+                <p className="text-white/60">Post your meme/contribution on social media first, then paste that post link. Submissions stay pending until admin review.</p>
               </div>
               <button type="button" onClick={() => setShowSubmit(false)} className="h-11 w-11 rounded-full bg-white/10 text-white">✕</button>
             </div>
@@ -203,7 +204,8 @@ export function LeaderboardClient({ initialData }: { initialData: LeaderboardRes
               <label className="block text-white/80 font-bold">CONTRIBUTION TYPE<select value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value as ContributionType })} className="mt-2 w-full rounded-xl bg-black border border-white/10 p-3 text-white">{CONTRIBUTION_TYPES.map((type) => <option key={type}>{type}</option>)}</select></label>
             </div>
             <label className="block text-white/80 font-bold mt-4">DESCRIPTION<textarea required minLength={10} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="mt-2 min-h-28 w-full rounded-xl bg-white/10 border border-white/10 p-3 text-white" /></label>
-            <label className="block text-white/80 font-bold mt-4">PROOF / URL<input value={form.proofUrl} onChange={(e) => setForm({ ...form, proofUrl: e.target.value })} placeholder="https://..." className="mt-2 w-full rounded-xl bg-white/10 border border-white/10 p-3 text-white" /></label>
+            <label className="block text-white/80 font-bold mt-4">SOCIAL POST LINK REQUIRED<input required value={form.proofUrl} onChange={(e) => setForm({ ...form, proofUrl: e.target.value })} placeholder="https://x.com/yourname/status/..." className="mt-2 w-full rounded-xl bg-white/10 border border-white/10 p-3 text-white" /></label>
+            <p className="mt-2 text-cyan-200 text-sm">To qualify, this must be a public social media link to the meme or contribution you posted: X/Twitter, Telegram, Discord, Instagram, TikTok, Reddit, YouTube, Facebook, Threads, or Bluesky.</p>
             <label className="block text-white/80 font-bold mt-4">WALLET ADDRESS <span className="text-white/40">OPTIONAL</span><input value={form.walletAddress} onChange={(e) => setForm({ ...form, walletAddress: e.target.value })} className="mt-2 w-full rounded-xl bg-white/10 border border-white/10 p-3 text-white" /></label>
             <p className="mt-3 text-yellow-300 font-bold">NEVER SUBMIT YOUR SEED PHRASE OR PRIVATE KEY.</p>
             <button disabled={submitState === "submitting"} className="mt-6 w-full rounded-full bg-green-500 px-6 py-4 text-black font-black hover:bg-green-400 disabled:opacity-60">

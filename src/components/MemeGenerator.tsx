@@ -46,6 +46,7 @@ export function MemeGenerator({ onClose, onMemeGenerated }: MemeGeneratorProps) 
     displayName: "",
     username: "",
     platform: "X",
+    proofUrl: "",
   });
 
   // Loading message rotation
@@ -198,7 +199,7 @@ export function MemeGenerator({ onClose, onMemeGenerated }: MemeGeneratorProps) 
         platform: communityForm.platform,
         type: "MEME",
         description: `Generated a $SOMETHING meme about: ${generatedMeme.topic}`,
-        proofUrl: generatedMeme.imageUrl,
+        proofUrl: communityForm.proofUrl,
       }),
     });
 
@@ -394,7 +395,7 @@ export function MemeGenerator({ onClose, onMemeGenerated }: MemeGeneratorProps) 
             <form onSubmit={submitMemeToCommunity} className="space-y-3">
               <div>
                 <h3 className="text-green-400 font-black text-lg">SUBMIT TO COMMUNITY</h3>
-                <p className="text-white/60 text-sm">This creates a PENDING MEME contribution. Admin approval is required before points are awarded.</p>
+                <p className="text-white/60 text-sm">Post this meme on social media first, then paste the public post link. Admin approval is required before points are awarded.</p>
               </div>
               {communityStatus === "success" && <div className="rounded-lg border border-green-500/30 bg-green-500/10 p-3 text-green-300 font-bold">SOMETHING SUBMITTED. 🟢<br />{communityMessage}</div>}
               {communityStatus === "error" && <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-red-300 font-bold">{communityMessage}</div>}
@@ -408,6 +409,8 @@ export function MemeGenerator({ onClose, onMemeGenerated }: MemeGeneratorProps) 
                   <option>Other</option>
                 </select>
               </div>
+              <input required value={communityForm.proofUrl} onChange={(e) => setCommunityForm({ ...communityForm, proofUrl: e.target.value })} placeholder="Social post link: https://x.com/yourname/status/..." className="w-full rounded-lg border border-white/10 bg-white/10 p-3 text-white" />
+              <p className="text-cyan-200 text-xs font-bold">To qualify, submit a public social media post link to the meme you posted. A raw generated image URL is not enough.</p>
               <p className="text-yellow-300 text-xs font-bold">NEVER SUBMIT YOUR SEED PHRASE OR PRIVATE KEY.</p>
               <button disabled={communityStatus === "submitting" || communityStatus === "success"} className="w-full rounded-lg bg-green-500 px-6 py-3 font-black text-black disabled:opacity-60">
                 {communityStatus === "submitting" ? "SUBMITTING..." : "SUBMIT SOMETHING"}
