@@ -7,6 +7,7 @@ const navLinks = [
   { href: "/about", label: "ABOUT" },
   { href: "/token", label: "TOKEN" },
   { href: "/memes", label: "MEMES" },
+  { href: "/missions", label: "⚡ MISSIONS" },
   { href: "/leaderboard", label: "🏆 LEADERBOARD" },
   { href: "/community", label: "COMMUNITY" },
 ];

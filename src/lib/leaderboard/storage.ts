@@ -70,6 +70,61 @@ function newId(prefix: string) {
   return `${prefix}_${crypto.randomUUID()}`;
 }
 
+function utcDay(value: string) {
+  return new Date(value).toISOString().slice(0, 10);
+}
+
+function calculateStreaks(contributions: Contribution[]) {
+  const missionDays = Array.from(new Set(
+    contributions
+      .filter((item) => item.status === "APPROVED" && item.missionId)
+      .map((item) => utcDay(item.completedAt || item.submittedAt))
+  )).sort();
+
+  if (missionDays.length === 0) return { currentStreak: 0, longestStreak: 0 };
+
+  let longestStreak = 1;
+  let run = 1;
+  for (let index = 1; index < missionDays.length; index += 1) {
+    const previous = Date.parse(`${missionDays[index - 1]}T00:00:00.000Z`);
+    const current = Date.parse(`${missionDays[index]}T00:00:00.000Z`);
+    if (current - previous === 86_400_000) {
+      run += 1;
+    } else {
+      run = 1;
+    }
+    longestStreak = Math.max(longestStreak, run);
+  }
+
+  const today = utcDay(new Date().toISOString());
+  const yesterday = utcDay(new Date(Date.now() - 86_400_000).toISOString());
+  const lastDay = missionDays[missionDays.length - 1];
+  let currentStreak = 0;
+  if (lastDay === today || lastDay === yesterday) {
+    currentStreak = 1;
+    for (let index = missionDays.length - 1; index > 0; index -= 1) {
+      const previous = Date.parse(`${missionDays[index - 1]}T00:00:00.000Z`);
+      const current = Date.parse(`${missionDays[index]}T00:00:00.000Z`);
+      if (current - previous !== 86_400_000) break;
+      currentStreak += 1;
+    }
+  }
+
+  return { currentStreak, longestStreak };
+}
+
+function badgesFor(contributions: Contribution[], currentStreak: number, longestStreak: number) {
+  const missionsCompleted = contributions.filter((item) => item.status === "APPROVED" && item.missionId).length;
+  const memeMissions = contributions.filter((item) => item.status === "APPROVED" && item.missionId && item.type === "MEME").length;
+  const badges: string[] = [];
+  if (missionsCompleted >= 1) badges.push("FIRST SOMETHING");
+  if (memeMissions >= 5) badges.push("MEME MACHINE");
+  if (Math.max(currentStreak, longestStreak) >= 3) badges.push("ON A ROLL");
+  if (Math.max(currentStreak, longestStreak) >= 7) badges.push("CAN'T STOP DOING SOMETHING");
+  if (Math.max(currentStreak, longestStreak) >= 30) badges.push("SOMETHING SERIOUS");
+  return badges;
+}
+
 async function getMembersByIds(ids: string[]): Promise<LeaderboardMember[]> {
   if (ids.length === 0) return [];
   const values = await redisCommand<Array<string | null>>(["MGET", ...ids.map(memberKey)]);
@@ -142,8 +197,11 @@ export async function createPendingContribution(input: SubmitContributionInput):
     description: input.description,
     proofUrl: input.proofUrl,
     archiveImageDataUrl: input.archiveImageDataUrl,
+    missionId: input.missionId,
+    missionTitle: input.missionTitle,
+    completedAt: input.completedAt,
     pointsAwarded: 0,
-    suggestedPoints: suggestedPointsFor(input.type),
+    suggestedPoints: input.suggestedPoints ?? suggestedPointsFor(input.type),
     status: "PENDING",
     submittedAt: new Date().toISOString(),
   };
@@ -170,11 +228,17 @@ export async function getLeaderboard(limit = 50): Promise<LeaderboardResponse> {
       .filter((item) => item.memberId === member.id && item.status === "APPROVED")
       .sort((a, b) => (b.verifiedAt || "").localeCompare(a.verifiedAt || ""));
     const points = recentContributions.reduce((total, item) => total + item.pointsAwarded, 0);
+    const { currentStreak, longestStreak } = calculateStreaks(recentContributions);
+    const missionsCompleted = recentContributions.filter((item) => item.missionId).length;
     return {
       member,
       points,
       verifiedContributions: recentContributions.length,
       rankTitle: getRankTitle(points),
+      missionsCompleted,
+      currentStreak,
+      longestStreak,
+      badges: badgesFor(recentContributions, currentStreak, longestStreak),
       recentContributions: recentContributions.slice(0, 5),
     } satisfies LeaderboardEntry;
   }).sort((a, b) => b.points - a.points || b.verifiedContributions - a.verifiedContributions)
@@ -207,12 +271,18 @@ export async function getMemberProfile(id: string): Promise<LeaderboardEntry | n
     .filter((item) => item.memberId === id && item.status === "APPROVED")
     .sort((a, b) => (b.verifiedAt || "").localeCompare(a.verifiedAt || ""));
   const points = approvedContributions.reduce((total, item) => total + item.pointsAwarded, 0);
+  const { currentStreak, longestStreak } = calculateStreaks(approvedContributions);
+  const missionsCompleted = approvedContributions.filter((item) => item.missionId).length;
 
   return {
     member,
     points,
     verifiedContributions: approvedContributions.length,
     rankTitle: getRankTitle(points),
+    missionsCompleted,
+    currentStreak,
+    longestStreak,
+    badges: badgesFor(approvedContributions, currentStreak, longestStreak),
     recentContributions: approvedContributions.slice(0, 20),
   };
 }

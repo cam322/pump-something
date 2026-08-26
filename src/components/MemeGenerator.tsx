@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import type { Mission } from "@/lib/leaderboard/types";
 
 interface MemeGeneratorProps {
   onClose: () => void;
@@ -40,6 +41,8 @@ export function MemeGenerator({ onClose, onMemeGenerated }: MemeGeneratorProps) 
   const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [showCommunitySubmit, setShowCommunitySubmit] = useState(false);
+  const [activeMemeMissions, setActiveMemeMissions] = useState<Mission[]>([]);
+  const [selectedMissionId, setSelectedMissionId] = useState("");
   const [communityStatus, setCommunityStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const [communityMessage, setCommunityMessage] = useState("");
   const [communityForm, setCommunityForm] = useState({
@@ -60,6 +63,18 @@ export function MemeGenerator({ onClose, onMemeGenerated }: MemeGeneratorProps) 
     }, 3000);
 
     return () => clearInterval(interval);
+  }, [step]);
+
+  useEffect(() => {
+    if (step !== "result") return;
+    fetch("/api/missions", { cache: "no-store" })
+      .then((response) => response.json())
+      .then((data: { missions?: Mission[] }) => {
+        const missions = (data.missions || []).filter((mission) => mission.status === "ACTIVE" && mission.category === "MEME");
+        setActiveMemeMissions(missions);
+        setSelectedMissionId(missions.length === 1 ? missions[0].id : "");
+      })
+      .catch(() => setActiveMemeMissions([]));
   }, [step]);
 
   // Escape key closes modal
@@ -192,7 +207,8 @@ export function MemeGenerator({ onClose, onMemeGenerated }: MemeGeneratorProps) 
     setCommunityStatus("submitting");
     setCommunityMessage("");
 
-    const response = await fetch("/api/contributions", {
+    const selectedMission = activeMemeMissions.find((mission) => mission.id === selectedMissionId);
+    const response = await fetch(selectedMission ? `/api/missions/${selectedMission.id}/submit` : "/api/contributions", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -214,7 +230,7 @@ export function MemeGenerator({ onClose, onMemeGenerated }: MemeGeneratorProps) 
     }
 
     setCommunityStatus("success");
-    setCommunityMessage("YOUR MEME IS WAITING FOR REVIEW.");
+    setCommunityMessage(selectedMission ? "YOUR MISSION COMPLETION IS WAITING FOR REVIEW." : "YOUR MEME IS WAITING FOR REVIEW.");
   };
 
   const handleCommunityArchiveUpload = (file: File | undefined) => {
@@ -414,13 +430,13 @@ export function MemeGenerator({ onClose, onMemeGenerated }: MemeGeneratorProps) 
               onClick={() => setShowCommunitySubmit(true)}
               className="w-full px-6 py-3 bg-cyan-400/20 text-cyan-200 border border-cyan-400/30 rounded-lg hover:bg-cyan-400/30 transition-all font-bold"
             >
-              SUBMIT TO COMMUNITY
+              {activeMemeMissions.length ? "SUBMIT FOR MISSION" : "SUBMIT TO COMMUNITY"}
             </button>
           ) : (
             <form onSubmit={submitMemeToCommunity} className="space-y-3">
               <div>
-                <h3 className="text-green-400 font-black text-lg">SUBMIT TO COMMUNITY</h3>
-                <p className="text-white/60 text-sm">Post this meme on social media first, then paste the public post link. Admin approval is required before points are awarded.</p>
+                <h3 className="text-green-400 font-black text-lg">{activeMemeMissions.length ? "SUBMIT FOR MISSION" : "SUBMIT TO COMMUNITY"}</h3>
+                <p className="text-white/60 text-sm">Post this meme on social media first, then paste the public post link. Admin approval is required before points, streaks, or leaderboard movement count.</p>
               </div>
               {communityStatus === "success" && <div className="rounded-lg border border-green-500/30 bg-green-500/10 p-3 text-green-300 font-bold">SOMETHING SUBMITTED. 🟢<br />{communityMessage}</div>}
               {communityStatus === "error" && <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-red-300 font-bold">{communityMessage}</div>}
@@ -434,6 +450,15 @@ export function MemeGenerator({ onClose, onMemeGenerated }: MemeGeneratorProps) 
                   <option>Other</option>
                 </select>
               </div>
+              {activeMemeMissions.length > 0 && (
+                <label className="block text-white/80 text-sm font-bold">
+                  MISSION
+                  <select value={selectedMissionId} onChange={(e) => setSelectedMissionId(e.target.value)} className="mt-2 w-full rounded-lg border border-white/10 bg-black p-3 text-white" required>
+                    {activeMemeMissions.length !== 1 && <option value="">Choose a meme mission</option>}
+                    {activeMemeMissions.map((mission) => <option key={mission.id} value={mission.id}>{mission.title} (+{mission.points})</option>)}
+                  </select>
+                </label>
+              )}
               <input required value={communityForm.proofUrl} onChange={(e) => setCommunityForm({ ...communityForm, proofUrl: e.target.value })} placeholder="Social post link: https://x.com/yourname/status/..." className="w-full rounded-lg border border-white/10 bg-white/10 p-3 text-white" />
               <p className="text-cyan-200 text-xs font-bold">To qualify, submit a public social media post link to the meme you posted. A raw generated image URL is not enough.</p>
               <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" onChange={(e) => handleCommunityArchiveUpload(e.target.files?.[0])} className="w-full rounded-lg border border-white/10 bg-white/10 p-3 text-white file:mr-3 file:rounded-full file:border-0 file:bg-green-500 file:px-4 file:py-2 file:font-bold file:text-black" />

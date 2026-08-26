@@ -126,10 +126,11 @@ export function AdminContributionsClient() {
             <div key={contribution.id} className="rounded-3xl border border-green-500/20 bg-black/70 p-5">
               <div className="grid gap-4 lg:grid-cols-[1fr_220px]">
                 <div className="min-w-0">
-                  <p className="text-sm font-black text-green-400">{contribution.type} · {new Date(contribution.submittedAt).toLocaleString()}</p>
+                  <p className="text-sm font-black text-green-400">{contribution.missionTitle ? `MISSION · ${contribution.missionTitle}` : contribution.type} · {new Date(contribution.submittedAt).toLocaleString()}</p>
                   <h2 className="text-2xl font-black text-white">{member.displayName}</h2>
                   <p className="text-white/60">{member.platform} · @{member.telegramUsername || member.xUsername || member.discordUsername || member.otherUsername}</p>
                   <p className="mt-4 text-white/80 whitespace-pre-wrap">{contribution.description}</p>
+                  {contribution.missionTitle && <p className="mt-2 rounded-xl border border-orange-400/20 bg-orange-400/10 p-3 text-sm font-bold text-orange-200">Mission completion: approving this awards mission points and updates UTC streaks from the submitted/completed date.</p>}
                   {contribution.proofUrl && <Link href={contribution.proofUrl} target="_blank" rel="noopener noreferrer" className="mt-3 inline-block text-cyan-300 underline break-all">{contribution.proofUrl}</Link>}
                   {contribution.archiveImageDataUrl && (
                     <div className="mt-4 rounded-2xl border border-green-500/20 bg-black/50 p-3">

@@ -4,13 +4,29 @@ import { Footer } from "@/components/Footer";
 import { CopyButton } from "@/components/CopyButton";
 import { SomethingMascot } from "@/components/Mascot";
 import { PROJECT_CONFIG } from "@/config/project";
+import { ensureDefaultMission, getPublicMissions } from "@/lib/leaderboard/missionsStorage";
+import type { Mission } from "@/lib/leaderboard/types";
 
 export const metadata = {
   title: "Pump Something ($SOMETHING) | Solana Meme Community",
   description: "The internet is always doing SOMETHING. $SOMETHING is a community-powered meme project built on Solana. Find something. Meme something. Create something.",
 };
 
-export default function HomePage() {
+export const dynamic = "force-dynamic";
+
+async function getFeaturedMission(): Promise<Mission | null> {
+  try {
+    await ensureDefaultMission();
+    const missions = await getPublicMissions();
+    return missions.find((mission) => mission.isFeatured && mission.status === "ACTIVE") || missions.find((mission) => mission.status === "ACTIVE") || null;
+  } catch {
+    return null;
+  }
+}
+
+export default async function HomePage() {
+  const featuredMission = await getFeaturedMission();
+
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Navigation */}
@@ -74,6 +90,26 @@ export default function HomePage() {
           {/* Mascot */}
           <div className="inline-block">
             <SomethingMascot size={150} animate={true} />
+          </div>
+        </div>
+      </section>
+
+      {/* Do Something Today Card */}
+      <section className="px-4 pb-14">
+        <div className="container mx-auto max-w-4xl">
+          <div className="rounded-3xl border border-green-500/30 bg-green-500/10 p-5 shadow-[0_0_30px_rgba(34,197,94,0.12)] sm:p-6">
+            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+              <div>
+                <p className="mb-2 text-sm font-black text-green-400">⚡ DO SOMETHING TODAY</p>
+                <h2 className="text-2xl font-black text-white sm:text-3xl">{featuredMission?.title || "MEME SOMETHING"}</h2>
+                <p className="mt-2 text-white/60">
+                  {featuredMission ? `+${featuredMission.points} VERIFIED POINTS · ${featuredMission.difficulty}` : "Complete verified missions, build a streak, and climb the leaderboard."}
+                </p>
+              </div>
+              <Link href="/missions" className="inline-flex w-full items-center justify-center rounded-full bg-green-500 px-6 py-4 font-black text-black hover:bg-green-400 md:w-auto">
+                VIEW MISSION
+              </Link>
+            </div>
           </div>
         </div>
       </section>

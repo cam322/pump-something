@@ -1,4 +1,5 @@
 import type { ContributionStatus, ContributionType, Platform } from "@/config/leaderboard";
+import type { MissionCategory, MissionDifficulty, MissionStatus } from "@/config/missions";
 
 export interface LeaderboardMember {
   id: string;
@@ -19,6 +20,9 @@ export interface Contribution {
   description: string;
   proofUrl?: string;
   archiveImageDataUrl?: string;
+  missionId?: string;
+  missionTitle?: string;
+  completedAt?: string;
   pointsAwarded: number;
   suggestedPoints: number;
   status: ContributionStatus;
@@ -33,6 +37,10 @@ export interface LeaderboardEntry {
   points: number;
   verifiedContributions: number;
   rankTitle: string;
+  missionsCompleted: number;
+  currentStreak: number;
+  longestStreak: number;
+  badges: string[];
   recentContributions: Contribution[];
 }
 
@@ -54,5 +62,45 @@ export interface SubmitContributionInput {
   description: string;
   proofUrl?: string;
   archiveImageDataUrl?: string;
+  missionId?: string;
+  missionTitle?: string;
+  completedAt?: string;
+  suggestedPoints?: number;
   walletAddress?: string;
+}
+
+export interface Mission {
+  id: string;
+  title: string;
+  slug: string;
+  description: string;
+  category: MissionCategory;
+  points: number;
+  difficulty: MissionDifficulty;
+  status: MissionStatus;
+  startAt: string;
+  endAt?: string;
+  proofInstructions: string;
+  createdAt: string;
+  updatedAt: string;
+  createdBy: string;
+  isFeatured: boolean;
+  repeatable: boolean;
+  cooldownHours?: number;
+}
+
+export interface MissionInput {
+  title: string;
+  slug?: string;
+  description: string;
+  category: MissionCategory;
+  points: number;
+  difficulty: MissionDifficulty;
+  status: MissionStatus;
+  startAt?: string;
+  endAt?: string;
+  proofInstructions: string;
+  isFeatured: boolean;
+  repeatable: boolean;
+  cooldownHours?: number;
 }

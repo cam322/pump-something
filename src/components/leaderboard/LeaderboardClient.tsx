@@ -151,8 +151,11 @@ export function LeaderboardClient({ initialData }: { initialData: LeaderboardRes
                     </div>
                     <p className="text-4xl font-black text-green-400">{entry.points.toLocaleString()}</p>
                     <p className="text-white/60 mb-3">POINTS</p>
+                    <div className="mb-3 inline-flex rounded-full border border-orange-400/30 bg-orange-400/10 px-3 py-1 text-sm font-black text-orange-300">
+                      🔥 {entry.currentStreak} DAY STREAK
+                    </div>
                     <p className="text-white font-bold">{entry.rankTitle}</p>
-                    <p className="text-white/60">{entry.verifiedContributions} verified contributions</p>
+                    <p className="text-white/60">{entry.verifiedContributions} verified contributions · {entry.missionsCompleted} missions</p>
                     <div className="mt-4 flex flex-col gap-2">
                       {latestProofLink(entry) && (
                         <Link href={latestProofLink(entry) || "#"} target="_blank" rel="noopener noreferrer" className="rounded-full border border-cyan-400/30 px-4 py-2 text-center text-sm font-bold text-cyan-200 hover:bg-cyan-400/10">
@@ -173,7 +176,7 @@ export function LeaderboardClient({ initialData }: { initialData: LeaderboardRes
                 </div>
                 <div className="divide-y divide-green-500/10">
                   {data.entries.map((entry, index) => (
-                    <div key={entry.member.id} className="grid grid-cols-[auto_1fr] sm:grid-cols-[56px_1fr_120px_130px_190px] gap-3 p-4 text-left hover:bg-green-500/5 transition-all">
+                    <div key={entry.member.id} className="grid grid-cols-[auto_1fr] sm:grid-cols-[56px_1fr_110px_90px_120px_170px] gap-3 p-4 text-left hover:bg-green-500/5 transition-all">
                       <div className="text-green-400 font-black">#{index + 1}</div>
                       <div className="min-w-0">
                         <button onClick={() => setSelectedMember(entry)} className="block max-w-full truncate text-left font-bold text-white hover:text-green-400">{entry.member.displayName}</button>
@@ -185,6 +188,7 @@ export function LeaderboardClient({ initialData }: { initialData: LeaderboardRes
                         )}
                       </div>
                       <div className="font-black text-green-400 sm:text-right">{entry.points.toLocaleString()}<span className="sm:hidden text-white/50"> pts</span></div>
+                      <div className="text-orange-300 font-black sm:text-right">🔥 {entry.currentStreak}</div>
                       <div className="text-white/70 sm:text-right">{entry.verifiedContributions}<span className="sm:hidden"> contributions</span></div>
                       <div className="text-white/80 font-bold sm:text-right col-span-2 sm:col-span-1">{entry.rankTitle}</div>
                     </div>
@@ -206,7 +210,8 @@ export function LeaderboardClient({ initialData }: { initialData: LeaderboardRes
               <div className="space-y-3">
                 {data.recentActivity.map(({ member, contribution }) => (
                   <div key={contribution.id} className="rounded-xl bg-black/50 border border-white/10 p-4">
-                    <p className="font-bold text-white">{member.displayName} created SOMETHING.</p>
+                    <p className="font-bold text-white">{member.displayName} completed SOMETHING.</p>
+                    {contribution.missionTitle && <p className="text-white/60">{contribution.missionTitle}</p>}
                     <p className="text-green-400 font-black">+{contribution.pointsAwarded} {contribution.type}</p>
                     {contribution.proofUrl && (
                       <Link href={contribution.proofUrl} target="_blank" rel="noopener noreferrer" className="mt-2 inline-block text-sm font-bold text-cyan-300 underline underline-offset-4">
@@ -276,6 +281,12 @@ export function LeaderboardClient({ initialData }: { initialData: LeaderboardRes
             <div className="grid grid-cols-2 gap-3 mb-5">
               <div className="rounded-xl bg-white/5 p-4"><p className="text-3xl font-black text-green-400">{selectedMember.points.toLocaleString()}</p><p className="text-white/50">POINTS</p></div>
               <div className="rounded-xl bg-white/5 p-4"><p className="text-3xl font-black text-green-400">{selectedMember.verifiedContributions}</p><p className="text-white/50">VERIFIED</p></div>
+              <div className="rounded-xl bg-orange-400/10 p-4"><p className="text-3xl font-black text-orange-300">🔥 {selectedMember.currentStreak}</p><p className="text-white/50">CURRENT STREAK</p></div>
+              <div className="rounded-xl bg-orange-400/10 p-4"><p className="text-3xl font-black text-orange-300">{selectedMember.longestStreak}</p><p className="text-white/50">LONGEST STREAK</p></div>
+            </div>
+            <p className="text-white/70 mb-3">{selectedMember.missionsCompleted} missions completed</p>
+            <div className="mb-5 flex flex-wrap gap-2">
+              {selectedMember.badges.length ? selectedMember.badges.map((badge) => <span key={badge} className="rounded-full border border-green-500/30 bg-green-500/10 px-3 py-1 text-xs font-black text-green-300">{badge}</span>) : <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-black text-white/50">🔥 0 DAY STREAK — TODAY IS A GOOD DAY TO START.</span>}
             </div>
             <p className="text-white/60 mb-4">First contribution/member record: {new Date(selectedMember.member.createdAt).toLocaleDateString()}</p>
             <h3 className="text-xl font-black text-white mb-3">RECENT VERIFIED CONTRIBUTIONS</h3>
@@ -283,7 +294,7 @@ export function LeaderboardClient({ initialData }: { initialData: LeaderboardRes
               <div className="space-y-3">
                 {selectedMember.recentContributions.map((item) => (
                   <div key={item.id} className="rounded-xl border border-white/10 bg-white/5 p-3">
-                    <p className="text-green-400 font-black">+{item.pointsAwarded} {item.type}</p>
+                    <p className="text-green-400 font-black">+{item.pointsAwarded} {item.missionTitle || item.type}</p>
                     <p className="text-white/70">{item.description}</p>
                     {item.proofUrl && <Link href={item.proofUrl} target="_blank" rel="noopener noreferrer" className="text-cyan-300 underline">View proof</Link>}
                   </div>
