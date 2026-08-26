@@ -197,6 +197,7 @@ export async function createPendingContribution(input: SubmitContributionInput):
     description: input.description,
     proofUrl: input.proofUrl,
     archiveImageDataUrl: input.archiveImageDataUrl,
+    archiveImageUrl: input.archiveImageUrl,
     missionId: input.missionId,
     missionTitle: input.missionTitle,
     completedAt: input.completedAt,
@@ -315,7 +316,7 @@ export async function getApprovedArchiveMemes(): Promise<Array<{
     return {
       id: `approved-${contribution.id}`,
       title: `${member?.displayName || "Community"} did SOMETHING`,
-      image: contribution.archiveImageDataUrl || "/memes/community-placeholder.svg",
+      image: contribution.archiveImageDataUrl || contribution.archiveImageUrl || "/memes/community-placeholder.svg",
       category,
       caption: contribution.description,
       date: contribution.verifiedAt || contribution.submittedAt,

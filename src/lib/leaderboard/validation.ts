@@ -65,6 +65,18 @@ function sanitizeArchiveImage(value: unknown): string | undefined {
   return value;
 }
 
+function sanitizeArchiveImageUrl(value: unknown): string | undefined {
+  if (typeof value !== "string" || !value) return undefined;
+  const trimmed = value.trim().slice(0, 500);
+  try {
+    const url = new URL(trimmed);
+    if (url.protocol !== "https:" && url.protocol !== "http:") return undefined;
+    return url.toString();
+  } catch {
+    return undefined;
+  }
+}
+
 export function validateSubmission(body: Record<string, unknown>): { ok: true; data: SubmitContributionInput } | { ok: false; error: string } {
   const displayName = sanitizeText(body.displayName, 60);
   const username = sanitizeText(body.username, 60);
@@ -73,6 +85,7 @@ export function validateSubmission(body: Record<string, unknown>): { ok: true; d
   const description = sanitizeText(body.description, 500);
   const proofUrl = sanitizeText(body.proofUrl, 300);
   const archiveImageDataUrl = sanitizeArchiveImage(body.archiveImageDataUrl);
+  const archiveImageUrl = sanitizeArchiveImageUrl(body.archiveImageUrl);
   const walletAddress = sanitizeText(body.walletAddress, 80);
 
   if (displayName.length < 2) return { ok: false, error: "Display name is required." };
@@ -103,6 +116,7 @@ export function validateSubmission(body: Record<string, unknown>): { ok: true; d
       description,
       proofUrl,
       archiveImageDataUrl,
+      archiveImageUrl,
       walletAddress: walletAddress || undefined,
     },
   };

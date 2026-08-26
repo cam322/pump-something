@@ -20,6 +20,7 @@ export interface Contribution {
   description: string;
   proofUrl?: string;
   archiveImageDataUrl?: string;
+  archiveImageUrl?: string;
   missionId?: string;
   missionTitle?: string;
   completedAt?: string;
@@ -62,6 +63,7 @@ export interface SubmitContributionInput {
   description: string;
   proofUrl?: string;
   archiveImageDataUrl?: string;
+  archiveImageUrl?: string;
   missionId?: string;
   missionTitle?: string;
   completedAt?: string;
@@ -104,3 +106,4 @@ export interface MissionInput {
   repeatable: boolean;
   cooldownHours?: number;
 }
+

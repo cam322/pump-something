@@ -132,11 +132,11 @@ export function AdminContributionsClient() {
                   <p className="mt-4 text-white/80 whitespace-pre-wrap">{contribution.description}</p>
                   {contribution.missionTitle && <p className="mt-2 rounded-xl border border-orange-400/20 bg-orange-400/10 p-3 text-sm font-bold text-orange-200">Mission completion: approving this awards mission points and updates UTC streaks from the submitted/completed date.</p>}
                   {contribution.proofUrl && <Link href={contribution.proofUrl} target="_blank" rel="noopener noreferrer" className="mt-3 inline-block text-cyan-300 underline break-all">{contribution.proofUrl}</Link>}
-                  {contribution.archiveImageDataUrl && (
+                  {(contribution.archiveImageDataUrl || contribution.archiveImageUrl) && (
                     <div className="mt-4 rounded-2xl border border-green-500/20 bg-black/50 p-3">
                       <p className="mb-2 text-sm font-black text-green-400">ARCHIVE IMAGE PREVIEW</p>
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={contribution.archiveImageDataUrl} alt="Submitted meme archive preview" className="max-h-64 rounded-xl object-contain" />
+                      <img src={contribution.archiveImageDataUrl || contribution.archiveImageUrl} alt="Submitted meme archive preview" className="max-h-64 rounded-xl object-contain" />
                       <p className="mt-2 text-xs text-white/50">Approving this contribution adds this image to the Something Archives.</p>
                     </div>
                   )}

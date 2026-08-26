@@ -219,6 +219,7 @@ export function MemeGenerator({ onClose, onMemeGenerated }: MemeGeneratorProps) 
         description: `Generated a $SOMETHING meme about: ${generatedMeme.topic}`,
         proofUrl: communityForm.proofUrl,
         archiveImageDataUrl: communityForm.archiveImageDataUrl,
+        archiveImageUrl: communityForm.archiveImageDataUrl ? undefined : generatedMeme.imageUrl,
       }),
     });
 
@@ -462,7 +463,7 @@ export function MemeGenerator({ onClose, onMemeGenerated }: MemeGeneratorProps) 
               <input required value={communityForm.proofUrl} onChange={(e) => setCommunityForm({ ...communityForm, proofUrl: e.target.value })} placeholder="Social post link: https://x.com/yourname/status/..." className="w-full rounded-lg border border-white/10 bg-white/10 p-3 text-white" />
               <p className="text-cyan-200 text-xs font-bold">To qualify, submit a public social media post link to the meme you posted. A raw generated image URL is not enough.</p>
               <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" onChange={(e) => handleCommunityArchiveUpload(e.target.files?.[0])} className="w-full rounded-lg border border-white/10 bg-white/10 p-3 text-white file:mr-3 file:rounded-full file:border-0 file:bg-green-500 file:px-4 file:py-2 file:font-bold file:text-black" />
-              <p className="text-white/50 text-xs">Optional: upload the meme image for the Something Archives. If approved, it will appear in the Memes tab. Max 700 KB.</p>
+              <p className="text-white/50 text-xs">This generated meme will be saved for archive review automatically. Optional: upload a different meme image for the Something Archives. If approved, it will appear in the Memes tab. Max 700 KB.</p>
               {communityArchiveImageName && <p className="text-green-400 text-xs font-bold">Archive upload ready: {communityArchiveImageName}</p>}
               <p className="text-yellow-300 text-xs font-bold">NEVER SUBMIT YOUR SEED PHRASE OR PRIVATE KEY.</p>
               <button disabled={communityStatus === "submitting" || communityStatus === "success"} className="w-full rounded-lg bg-green-500 px-6 py-3 font-black text-black disabled:opacity-60">
