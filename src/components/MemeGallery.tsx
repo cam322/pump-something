@@ -58,6 +58,9 @@ export function MemeGallery({ archiveMemes = [] }: { archiveMemes?: MemeData[] }
                     src={meme.image}
                     alt={meme.title}
                     className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    onError={(event) => {
+                      event.currentTarget.src = "/memes/community-placeholder.svg";
+                    }}
                   />
                 ) : (
                   <div className="w-full h-full bg-gradient-to-br from-green-500/20 to-purple-500/20 flex items-center justify-center">
@@ -93,9 +96,12 @@ export function MemeGallery({ archiveMemes = [] }: { archiveMemes?: MemeData[] }
               <div className="relative aspect-video">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src={selectedMeme.image || "/memes/placeholder.png"}
+                  src={selectedMeme.image || "/memes/community-placeholder.svg"}
                   alt={selectedMeme.title}
                   className="h-full w-full object-contain"
+                  onError={(event) => {
+                    event.currentTarget.src = "/memes/community-placeholder.svg";
+                  }}
                 />
               </div>
               <div className="p-6">

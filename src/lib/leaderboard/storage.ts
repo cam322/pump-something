@@ -315,7 +315,7 @@ export async function getApprovedArchiveMemes(): Promise<Array<{
     return {
       id: `approved-${contribution.id}`,
       title: `${member?.displayName || "Community"} did SOMETHING`,
-      image: contribution.archiveImageDataUrl || "/memes/placeholder.png",
+      image: contribution.archiveImageDataUrl || "/memes/community-placeholder.svg",
       category,
       caption: contribution.description,
       date: contribution.verifiedAt || contribution.submittedAt,

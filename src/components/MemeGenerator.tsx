@@ -402,7 +402,7 @@ export function MemeGenerator({ onClose, onMemeGenerated }: MemeGeneratorProps) 
               alt={`Meme about ${generatedMeme.topic}`}
               className="w-full h-full object-contain"
               onError={(e) => {
-                e.currentTarget.src = "/memes/placeholder.png";
+                e.currentTarget.src = "/memes/community-placeholder.svg";
               }}
             />
           </div>
