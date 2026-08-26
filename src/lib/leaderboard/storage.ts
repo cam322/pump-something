@@ -1,4 +1,5 @@
 import { getRankTitle } from "@/config/leaderboard";
+import { createHash } from "crypto";
 import { identityFieldForPlatform, normalizeUsername, suggestedPointsFor } from "./validation";
 import type { Contribution, LeaderboardEntry, LeaderboardMember, LeaderboardResponse, SubmitContributionInput } from "./types";
 
@@ -66,8 +67,54 @@ function contributionKey(id: string) {
   return `${PREFIX}:contribution:${id}`;
 }
 
+function previewKey(proofUrl: string) {
+  return `${PREFIX}:preview:${createHash("sha256").update(proofUrl).digest("hex")}`;
+}
+
 function newId(prefix: string) {
   return `${prefix}_${crypto.randomUUID()}`;
+}
+
+function extractMetaImage(html: string) {
+  const patterns = [
+    /<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i,
+    /<meta[^>]+name=["']twitter:image(?::src)?["'][^>]+content=["']([^"']+)["']/i,
+  ];
+  for (const pattern of patterns) {
+    const match = html.match(pattern);
+    if (!match?.[1]) continue;
+    try {
+      const url = new URL(match[1].replace(/&amp;/g, "&"));
+      if (url.protocol === "https:" || url.protocol === "http:") return url.toString();
+    } catch {
+      continue;
+    }
+  }
+  return undefined;
+}
+
+async function resolveProofPreviewImage(proofUrl?: string) {
+  if (!proofUrl) return undefined;
+  const key = previewKey(proofUrl);
+  const cached = await redisCommand<string | null>(["GET", key]).catch(() => null);
+  if (cached === "none") return undefined;
+  if (cached) return cached;
+
+  try {
+    const response = await fetch(proofUrl, {
+      headers: { "User-Agent": "Mozilla/5.0 (compatible; PumpSomethingBot/1.0)" },
+      signal: AbortSignal.timeout(4000),
+      cache: "no-store",
+    });
+    if (!response.ok) throw new Error(`Preview fetch failed: ${response.status}`);
+    const html = await response.text();
+    const image = extractMetaImage(html.slice(0, 250_000));
+    await redisCommand(["SETEX", key, 60 * 60 * 24 * 7, image || "none"]);
+    return image;
+  } catch {
+    await redisCommand(["SETEX", key, 60 * 60 * 6, "none"]).catch(() => undefined);
+    return undefined;
+  }
 }
 
 function utcDay(value: string) {
@@ -307,23 +354,25 @@ export async function getApprovedArchiveMemes(): Promise<Array<{
   const members = await getMembersByIds(Array.from(new Set(approvedContributions.map((item) => item.memberId))));
   const memberMap = new Map(members.map((member) => [member.id, member]));
 
-  return approvedContributions.map((contribution) => {
+  return Promise.all(approvedContributions.map(async (contribution) => {
     const member = memberMap.get(contribution.memberId);
     const category = contribution.type === "COMMUNITY" || contribution.type === "CONTEST" ? "community"
       : contribution.type === "MEME" || contribution.type === "GIF" || contribution.type === "VIDEO" || contribution.type === "ART" ? "internet"
         : "crypto";
 
+    const previewImage = contribution.archiveImageDataUrl || contribution.archiveImageUrl || await resolveProofPreviewImage(contribution.proofUrl);
+
     return {
       id: `approved-${contribution.id}`,
       title: `${member?.displayName || "Community"} did SOMETHING`,
-      image: contribution.archiveImageDataUrl || contribution.archiveImageUrl || "/memes/community-placeholder.svg",
+      image: previewImage || "/memes/community-placeholder.svg",
       category,
       caption: contribution.description,
       date: contribution.verifiedAt || contribution.submittedAt,
       proofUrl: contribution.proofUrl,
       creatorName: member?.displayName || "Community",
     };
-  });
+  }));
 }
 
 export async function getPendingSubmissions(): Promise<Array<{ member: LeaderboardMember; contribution: Contribution }>> {
