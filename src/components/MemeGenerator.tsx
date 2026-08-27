@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import type { Mission } from "@/lib/leaderboard/types";
+import { useLinkedProfileSession } from "@/components/leaderboard/useLinkedProfileSession";
 
 interface MemeGeneratorProps {
   onClose: () => void;
@@ -34,6 +35,7 @@ const loadingMessages = [
 ];
 
 export function MemeGenerator({ onClose, onMemeGenerated }: MemeGeneratorProps) {
+  const { linkedProfile, loading: profileLoading } = useLinkedProfileSession();
   const [step, setStep] = useState<"input" | "generating" | "result">("input");
   const [topic, setTopic] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<MemeCategory>("breaking");
@@ -441,16 +443,25 @@ export function MemeGenerator({ onClose, onMemeGenerated }: MemeGeneratorProps) 
               </div>
               {communityStatus === "success" && <div className="rounded-lg border border-green-500/30 bg-green-500/10 p-3 text-green-300 font-bold">SOMETHING SUBMITTED. 🟢<br />{communityMessage}</div>}
               {communityStatus === "error" && <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-red-300 font-bold">{communityMessage}</div>}
-              <div className="grid gap-3 sm:grid-cols-3">
-                <input required value={communityForm.displayName} onChange={(e) => setCommunityForm({ ...communityForm, displayName: e.target.value })} placeholder="Display name" className="rounded-lg border border-white/10 bg-white/10 p-3 text-white" />
-                <input required value={communityForm.username} onChange={(e) => setCommunityForm({ ...communityForm, username: e.target.value })} placeholder="Username" className="rounded-lg border border-white/10 bg-white/10 p-3 text-white" />
-                <select value={communityForm.platform} onChange={(e) => setCommunityForm({ ...communityForm, platform: e.target.value })} className="rounded-lg border border-white/10 bg-black p-3 text-white">
-                  <option>X</option>
-                  <option>Telegram</option>
-                  <option>Discord</option>
-                  <option>Other</option>
-                </select>
-              </div>
+              {linkedProfile ? (
+                <div className="rounded-2xl border border-green-400/30 bg-green-400/10 p-4">
+                  <p className="text-sm font-black text-green-300">SUBMITTING AS VERIFIED PROFILE</p>
+                  <p className="text-2xl font-black text-white">{linkedProfile.displayName}</p>
+                  <p className="text-white/60">@{linkedProfile.username} · {linkedProfile.platform}</p>
+                </div>
+              ) : (
+                <div className="grid gap-3 sm:grid-cols-3">
+                  {profileLoading && <p className="rounded-lg border border-white/10 bg-white/5 p-3 text-sm text-white/60 sm:col-span-3">Checking wallet session...</p>}
+                  <input required value={communityForm.displayName} onChange={(e) => setCommunityForm({ ...communityForm, displayName: e.target.value })} placeholder="Display name" className="rounded-lg border border-white/10 bg-white/10 p-3 text-white" />
+                  <input required value={communityForm.username} onChange={(e) => setCommunityForm({ ...communityForm, username: e.target.value })} placeholder="Username" className="rounded-lg border border-white/10 bg-white/10 p-3 text-white" />
+                  <select value={communityForm.platform} onChange={(e) => setCommunityForm({ ...communityForm, platform: e.target.value })} className="rounded-lg border border-white/10 bg-black p-3 text-white">
+                    <option>X</option>
+                    <option>Telegram</option>
+                    <option>Discord</option>
+                    <option>Other</option>
+                  </select>
+                </div>
+              )}
               {activeMemeMissions.length > 0 && (
                 <label className="block text-white/80 text-sm font-bold">
                   MISSION

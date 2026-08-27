@@ -4,6 +4,7 @@ import { useState } from "react";
 import { COMMUNITY_REWARDS_RESERVE, PLATFORMS } from "@/config/leaderboard";
 import type { Platform } from "@/config/leaderboard";
 import type { Mission } from "@/lib/leaderboard/types";
+import { useLinkedProfileSession } from "./useLinkedProfileSession";
 
 function statusStyle(status: string) {
   if (status === "ACTIVE") return "bg-green-500 text-black";
@@ -37,6 +38,7 @@ function MissionCard({ mission, featuredCard = false, onSelect }: { mission: Mis
 }
 
 export function MissionsClient({ missions, storageConfigured }: { missions: Mission[]; storageConfigured: boolean }) {
+  const { linkedProfile, loading: profileLoading } = useLinkedProfileSession();
   const featured = missions.find((mission) => mission.isFeatured && mission.status === "ACTIVE") || missions.find((mission) => mission.status === "ACTIVE");
   const active = missions.filter((mission) => mission.status === "ACTIVE" && mission.id !== featured?.id);
   const endingSoon = missions.filter((mission) => mission.status === "ACTIVE" && mission.endAt).sort((a, b) => Date.parse(a.endAt || "") - Date.parse(b.endAt || "")).slice(0, 4);
@@ -92,11 +94,24 @@ export function MissionsClient({ missions, storageConfigured }: { missions: Miss
             <div className="mb-5 flex items-start justify-between gap-4"><div><p className="text-green-400 font-black">DO THIS MISSION</p><h2 className="text-3xl font-black text-white">{selectedMission.title}</h2><p className="text-white/60">+{selectedMission.points} points if approved</p></div><button type="button" onClick={() => setSelectedMission(null)} className="h-11 w-11 rounded-full bg-white/10 text-white">✕</button></div>
             {submitStatus === "success" && <div className="mb-4 rounded-xl border border-green-500/30 bg-green-500/10 p-4 font-bold text-green-300">SOMETHING SUBMITTED. 🟢<br />{message}</div>}
             {submitStatus === "error" && <div className="mb-4 rounded-xl border border-red-500/30 bg-red-500/10 p-4 font-bold text-red-300">{message}</div>}
-            <div className="grid gap-4 sm:grid-cols-2"><label className="font-bold text-white/80">DISPLAY NAME<input required value={form.displayName} onChange={(e) => setForm({ ...form, displayName: e.target.value })} className="mt-2 w-full rounded-xl border border-white/10 bg-white/10 p-3 text-white" /></label><label className="font-bold text-white/80">USERNAME<input required value={form.username} onChange={(e) => setForm({ ...form, username: e.target.value })} className="mt-2 w-full rounded-xl border border-white/10 bg-white/10 p-3 text-white" /></label><label className="font-bold text-white/80">PLATFORM<select value={form.platform} onChange={(e) => setForm({ ...form, platform: e.target.value as Platform })} className="mt-2 w-full rounded-xl border border-white/10 bg-black p-3 text-white">{PLATFORMS.map((platform) => <option key={platform}>{platform}</option>)}</select></label></div>
+            {linkedProfile ? (
+              <div className="mb-4 rounded-2xl border border-green-400/30 bg-green-400/10 p-4">
+                <p className="text-sm font-black text-green-300">SUBMITTING AS VERIFIED PROFILE</p>
+                <p className="text-2xl font-black text-white">{linkedProfile.displayName}</p>
+                <p className="text-white/60">@{linkedProfile.username} · {linkedProfile.platform}</p>
+              </div>
+            ) : (
+              <div className="grid gap-4 sm:grid-cols-2">
+                {profileLoading && <p className="sm:col-span-2 rounded-xl border border-white/10 bg-white/5 p-3 text-sm text-white/60">Checking wallet session...</p>}
+                <label className="font-bold text-white/80">DISPLAY NAME<input required value={form.displayName} onChange={(e) => setForm({ ...form, displayName: e.target.value })} className="mt-2 w-full rounded-xl border border-white/10 bg-white/10 p-3 text-white" /></label>
+                <label className="font-bold text-white/80">USERNAME<input required value={form.username} onChange={(e) => setForm({ ...form, username: e.target.value })} className="mt-2 w-full rounded-xl border border-white/10 bg-white/10 p-3 text-white" /></label>
+                <label className="font-bold text-white/80">PLATFORM<select value={form.platform} onChange={(e) => setForm({ ...form, platform: e.target.value as Platform })} className="mt-2 w-full rounded-xl border border-white/10 bg-black p-3 text-white">{PLATFORMS.map((platform) => <option key={platform}>{platform}</option>)}</select></label>
+              </div>
+            )}
             <label className="mt-4 block font-bold text-white/80">DESCRIPTION / WHAT YOU DID<textarea required minLength={10} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="mt-2 min-h-28 w-full rounded-xl border border-white/10 bg-white/10 p-3 text-white" /></label>
             <label className="mt-4 block font-bold text-white/80">PROOF URL<input required value={form.proofUrl} onChange={(e) => setForm({ ...form, proofUrl: e.target.value })} placeholder="https://x.com/yourname/status/..." className="mt-2 w-full rounded-xl border border-white/10 bg-white/10 p-3 text-white" /></label>
             <p className="mt-2 text-sm text-cyan-200">Proof must be a public social media post link. Admin approval is required before points or streaks count.</p>
-            <label className="mt-4 block font-bold text-white/80">PUBLIC SOLANA WALLET ADDRESS <span className="text-white/40">OPTIONAL</span><input value={form.walletAddress} onChange={(e) => setForm({ ...form, walletAddress: e.target.value })} className="mt-2 w-full rounded-xl border border-white/10 bg-white/10 p-3 text-white" /></label>
+            {!linkedProfile && <label className="mt-4 block font-bold text-white/80">PUBLIC SOLANA WALLET ADDRESS <span className="text-white/40">OPTIONAL</span><input value={form.walletAddress} onChange={(e) => setForm({ ...form, walletAddress: e.target.value })} className="mt-2 w-full rounded-xl border border-white/10 bg-white/10 p-3 text-white" /></label>}
             <p className="mt-3 font-bold text-yellow-300">NEVER SUBMIT YOUR SEED PHRASE OR PRIVATE KEY.</p>
             <button disabled={submitStatus === "submitting" || submitStatus === "success"} className="mt-6 w-full rounded-full bg-green-500 px-6 py-4 font-black text-black disabled:opacity-60">{submitStatus === "submitting" ? "SUBMITTING SOMETHING..." : "SUBMIT SOMETHING"}</button>
           </form>

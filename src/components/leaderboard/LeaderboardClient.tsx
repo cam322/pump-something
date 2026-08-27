@@ -5,6 +5,7 @@ import Link from "next/link";
 import { COMMUNITY_REWARDS_RESERVE, CONTRIBUTION_TYPES, PLATFORMS } from "@/config/leaderboard";
 import type { ContributionType, Platform } from "@/config/leaderboard";
 import type { LeaderboardEntry, LeaderboardResponse } from "@/lib/leaderboard/types";
+import { useLinkedProfileSession } from "./useLinkedProfileSession";
 
 type SubmitState = "idle" | "submitting" | "success" | "error";
 
@@ -22,6 +23,7 @@ function latestProofLink(entry: LeaderboardEntry) {
 }
 
 export function LeaderboardClient({ initialData }: { initialData: LeaderboardResponse }) {
+  const { linkedProfile, loading: profileLoading } = useLinkedProfileSession();
   const [data, setData] = useState(initialData);
   const [showSubmit, setShowSubmit] = useState(false);
   const [selectedMember, setSelectedMember] = useState<LeaderboardEntry | null>(null);
@@ -251,10 +253,22 @@ export function LeaderboardClient({ initialData }: { initialData: LeaderboardRes
             {submitState === "success" && <div className="mb-4 rounded-xl border border-green-500/30 bg-green-500/10 p-4 text-green-300 font-bold">SOMETHING SUBMITTED. 🟢<br />{message}</div>}
             {submitState === "error" && <div className="mb-4 rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-red-300 font-bold">{message}</div>}
 
+            {linkedProfile ? (
+              <div className="mb-4 rounded-2xl border border-green-400/30 bg-green-400/10 p-4">
+                <p className="text-sm font-black text-green-300">SUBMITTING AS VERIFIED PROFILE</p>
+                <p className="text-2xl font-black text-white">{linkedProfile.displayName}</p>
+                <p className="text-white/60">@{linkedProfile.username} · {linkedProfile.platform}</p>
+                <Link href={`/profile/${linkedProfile.profileSlug}`} className="mt-2 inline-flex text-sm font-black text-cyan-200 underline underline-offset-4">VIEW MY PROFILE</Link>
+              </div>
+            ) : (
+              <div className="grid gap-4 sm:grid-cols-2">
+                {profileLoading && <p className="sm:col-span-2 rounded-xl border border-white/10 bg-white/5 p-3 text-sm text-white/60">Checking wallet session...</p>}
+                <label className="block text-white/80 font-bold">DISPLAY NAME<input required value={form.displayName} onChange={(e) => setForm({ ...form, displayName: e.target.value })} className="mt-2 w-full rounded-xl bg-white/10 border border-white/10 p-3 text-white" /></label>
+                <label className="block text-white/80 font-bold">USERNAME<input required value={form.username} onChange={(e) => setForm({ ...form, username: e.target.value })} className="mt-2 w-full rounded-xl bg-white/10 border border-white/10 p-3 text-white" /></label>
+                <label className="block text-white/80 font-bold">PLATFORM<select value={form.platform} onChange={(e) => setForm({ ...form, platform: e.target.value as Platform })} className="mt-2 w-full rounded-xl bg-black border border-white/10 p-3 text-white">{PLATFORMS.map((platform) => <option key={platform}>{platform}</option>)}</select></label>
+              </div>
+            )}
             <div className="grid gap-4 sm:grid-cols-2">
-              <label className="block text-white/80 font-bold">DISPLAY NAME<input required value={form.displayName} onChange={(e) => setForm({ ...form, displayName: e.target.value })} className="mt-2 w-full rounded-xl bg-white/10 border border-white/10 p-3 text-white" /></label>
-              <label className="block text-white/80 font-bold">USERNAME<input required value={form.username} onChange={(e) => setForm({ ...form, username: e.target.value })} className="mt-2 w-full rounded-xl bg-white/10 border border-white/10 p-3 text-white" /></label>
-              <label className="block text-white/80 font-bold">PLATFORM<select value={form.platform} onChange={(e) => setForm({ ...form, platform: e.target.value as Platform })} className="mt-2 w-full rounded-xl bg-black border border-white/10 p-3 text-white">{PLATFORMS.map((platform) => <option key={platform}>{platform}</option>)}</select></label>
               <label className="block text-white/80 font-bold">CONTRIBUTION TYPE<select value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value as ContributionType })} className="mt-2 w-full rounded-xl bg-black border border-white/10 p-3 text-white">{CONTRIBUTION_TYPES.map((type) => <option key={type}>{type}</option>)}</select></label>
             </div>
             <label className="block text-white/80 font-bold mt-4">DESCRIPTION<textarea required minLength={10} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="mt-2 min-h-28 w-full rounded-xl bg-white/10 border border-white/10 p-3 text-white" /></label>
@@ -263,7 +277,7 @@ export function LeaderboardClient({ initialData }: { initialData: LeaderboardRes
             <label className="block text-white/80 font-bold mt-4">UPLOAD MEME FOR THE ARCHIVES <span className="text-white/40">OPTIONAL</span><input type="file" accept="image/png,image/jpeg,image/webp,image/gif" onChange={(e) => handleArchiveUpload(e.target.files?.[0])} className="mt-2 w-full rounded-xl bg-white/10 border border-white/10 p-3 text-white file:mr-3 file:rounded-full file:border-0 file:bg-green-500 file:px-4 file:py-2 file:font-bold file:text-black" /></label>
             <p className="mt-2 text-white/50 text-sm">If approved, this uploaded meme image will be added to the Something Archives in the Memes tab. Max 700 KB for now.</p>
             {archiveImageName && <p className="mt-2 text-green-400 text-sm font-bold">Archive upload ready: {archiveImageName}</p>}
-            <label className="block text-white/80 font-bold mt-4">WALLET ADDRESS <span className="text-white/40">OPTIONAL</span><input value={form.walletAddress} onChange={(e) => setForm({ ...form, walletAddress: e.target.value })} className="mt-2 w-full rounded-xl bg-white/10 border border-white/10 p-3 text-white" /></label>
+            {!linkedProfile && <label className="block text-white/80 font-bold mt-4">WALLET ADDRESS <span className="text-white/40">OPTIONAL</span><input value={form.walletAddress} onChange={(e) => setForm({ ...form, walletAddress: e.target.value })} className="mt-2 w-full rounded-xl bg-white/10 border border-white/10 p-3 text-white" /></label>}
             <p className="mt-3 text-yellow-300 font-bold">NEVER SUBMIT YOUR SEED PHRASE OR PRIVATE KEY.</p>
             <button disabled={submitState === "submitting"} className="mt-6 w-full rounded-full bg-green-500 px-6 py-4 text-black font-black hover:bg-green-400 disabled:opacity-60">
               {submitState === "submitting" ? "SUBMITTING SOMETHING..." : "SUBMIT SOMETHING"}
