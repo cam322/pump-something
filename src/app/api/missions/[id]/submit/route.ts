@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { checkRateLimit, getRequestIp } from "@/lib/leaderboard/rateLimit";
 import { submitMissionCompletion } from "@/lib/leaderboard/missionsStorage";
+import { applyLinkedProfileToSubmission } from "@/lib/leaderboard/submissionIdentity";
 
 export const dynamic = "force-dynamic";
 
@@ -13,7 +14,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 
   try {
     const { id } = await params;
-    const body = await request.json() as Record<string, unknown>;
+    const body = await applyLinkedProfileToSubmission(await request.json() as Record<string, unknown>);
     const result = await submitMissionCompletion(id, body);
     return NextResponse.json({ success: true, contributionId: result.contribution.id, status: result.contribution.status });
   } catch (error) {

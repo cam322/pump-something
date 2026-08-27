@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createPendingContribution, isLeaderboardStorageConfigured } from "@/lib/leaderboard/storage";
 import { getRequestIp, checkRateLimit } from "@/lib/leaderboard/rateLimit";
 import { validateSubmission } from "@/lib/leaderboard/validation";
+import { applyLinkedProfileToSubmission } from "@/lib/leaderboard/submissionIdentity";
 
 export const dynamic = "force-dynamic";
 
@@ -23,7 +24,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    const body = await request.json() as Record<string, unknown>;
+    const body = await applyLinkedProfileToSubmission(await request.json() as Record<string, unknown>);
     const validated = validateSubmission(body);
     if (!validated.ok) {
       return NextResponse.json({ error: validated.error }, { status: 400 });

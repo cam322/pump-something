@@ -11,6 +11,13 @@ export interface LeaderboardMember {
   discordUsername?: string;
   otherUsername?: string;
   walletAddress?: string;
+  claimStatus?: "UNCLAIMED" | "PENDING_CLAIM" | "CLAIMED" | "REJECTED";
+  claimedWalletAddress?: string;
+  claimedAt?: string;
+  claimRequestedAt?: string;
+  claimApprovedAt?: string;
+  claimApprovedBy?: string;
+  walletVerifiedAt?: string;
   createdAt: string;
 }
 
@@ -19,6 +26,18 @@ export interface ProfilePreferences {
   avatarUrl?: string;
   publicWallet: boolean;
   updatedAt?: string;
+}
+
+export interface ProfileClaimRequest {
+  id: string;
+  memberId: string;
+  walletAddress: string;
+  status: "PENDING" | "APPROVED" | "REJECTED";
+  requestedAt: string;
+  walletVerifiedAt: string;
+  reviewedAt?: string;
+  reviewedBy?: string;
+  notes?: string;
 }
 
 export interface Contribution {

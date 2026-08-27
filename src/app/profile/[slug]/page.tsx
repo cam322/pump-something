@@ -94,6 +94,7 @@ export default async function CommunityProfilePage({ params }: { params: Promise
                 <div className="mb-5 flex flex-wrap gap-3">
                   <span className="rounded-full bg-green-400 px-4 py-2 text-sm font-black text-black">LEVEL {profile.memberLevel.level} — {profile.memberLevel.title}</span>
                   <span className="rounded-full border border-green-400/30 bg-green-400/10 px-4 py-2 text-sm font-black text-green-200">{profile.rankTitle}</span>
+                  {profile.member.claimStatus === "CLAIMED" && <span className="rounded-full border border-cyan-400/40 bg-cyan-400/10 px-4 py-2 text-sm font-black text-cyan-200">WALLET LINKED ✓</span>}
                   {profile.leaderboardRank && <span className="rounded-full border border-yellow-400/30 bg-yellow-400/10 px-4 py-2 text-sm font-black text-yellow-200">RANK #{profile.leaderboardRank}</span>}
                 </div>
                 <p className="max-w-3xl text-lg text-white/70">{profile.profilePreferences.bio || profile.memberLevel.description}</p>
