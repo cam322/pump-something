@@ -204,38 +204,6 @@ export async function getProfilePreferences(memberId: string): Promise<ProfilePr
   return await getJson<ProfilePreferences>(profilePreferencesKey(memberId)) || defaultProfilePreferences();
 }
 
-function sanitizeProfilePreferences(input: Record<string, unknown>, existing: ProfilePreferences): ProfilePreferences {
-  const next: ProfilePreferences = { ...existing, publicWallet: Boolean(input.publicWallet), updatedAt: new Date().toISOString() };
-  if (typeof input.bio === "string") {
-    next.bio = input.bio.trim().replace(/[<>]/g, "").slice(0, 180) || undefined;
-  }
-  if (typeof input.avatarUrl === "string") {
-    const trimmed = input.avatarUrl.trim().slice(0, 500);
-    if (!trimmed) {
-      next.avatarUrl = undefined;
-    } else {
-      const url = new URL(trimmed);
-      if (url.protocol !== "https:" && url.protocol !== "http:") throw new Error("Avatar must be an http(s) URL.");
-      next.avatarUrl = url.toString();
-    }
-  }
-  return next;
-}
-
-export async function updateProfilePreferences(memberId: string, input: Record<string, unknown>): Promise<ProfilePreferences> {
-  const existing = await getProfilePreferences(memberId);
-  const next = sanitizeProfilePreferences(input, existing);
-  await setJson(profilePreferencesKey(memberId), next);
-  return next;
-}
-
-export async function markProfileClaimed(memberId: string): Promise<ProfilePreferences> {
-  const existing = await getProfilePreferences(memberId);
-  const next = { ...existing, publicWallet: existing.publicWallet || false, claimedAt: existing.claimedAt || new Date().toISOString(), updatedAt: new Date().toISOString() };
-  await setJson(profilePreferencesKey(memberId), next);
-  return next;
-}
-
 async function getMembersByIds(ids: string[]): Promise<LeaderboardMember[]> {
   if (ids.length === 0) return [];
   const values = await redisCommand<Array<string | null>>(["MGET", ...ids.map(memberKey)]);

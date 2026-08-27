@@ -5,7 +5,7 @@ import { PROJECT_CONFIG } from "@/config/project";
 
 export const metadata = {
   title: "Login / Sign Up - Pump Something",
-  description: "Claim your $SOMETHING community profile or start earning verified contribution points.",
+  description: "Start earning verified $SOMETHING contribution points or find your public community profile.",
 };
 
 export default function LoginPage() {
@@ -22,22 +22,22 @@ export default function LoginPage() {
               LOGIN / <span className="text-green-400">SIGN UP</span>
             </h1>
             <p className="mx-auto max-w-3xl text-lg text-white/70">
-              $SOMETHING does not use passwords yet. Existing contributors log in by claiming their public profile with the Solana wallet already attached to their verified contribution record. New members sign up by doing a mission or submitting something for review.
+              Public profiles are created from verified community activity. There is no public self-claim or profile-edit flow right now, because profiles must represent the people who actually contributed.
             </p>
           </section>
 
           <section className="mt-6 grid gap-6 lg:grid-cols-2">
             <div className="rounded-3xl border border-cyan-400/25 bg-cyan-400/5 p-6 sm:p-8">
               <p className="mb-3 text-sm font-black uppercase tracking-[0.22em] text-cyan-300">Existing contributor</p>
-              <h2 className="mb-4 text-4xl font-black text-white">CLAIM YOUR PROFILE</h2>
+              <h2 className="mb-4 text-4xl font-black text-white">FIND YOUR PROFILE</h2>
               <p className="mb-5 text-white/70">
-                Find your leaderboard profile, open it, then use “CLAIM WITH WALLET.” The signature proves wallet ownership only. It cannot move funds or approve a transaction.
+                If your contribution was approved, your public profile is generated automatically from verified leaderboard data. Open the leaderboard and tap your name.
               </p>
               <div className="mb-6 space-y-3 rounded-2xl border border-white/10 bg-black/45 p-4 text-left text-sm text-white/65">
                 <p><span className="font-black text-cyan-200">1.</span> Go to the leaderboard.</p>
-                <p><span className="font-black text-cyan-200">2.</span> Open your public profile.</p>
-                <p><span className="font-black text-cyan-200">3.</span> Sign the profile-claim message with the wallet already on your member record.</p>
-                <p><span className="font-black text-cyan-200">4.</span> Edit your bio, avatar, and wallet visibility.</p>
+                <p><span className="font-black text-cyan-200">2.</span> Find your display name or social username.</p>
+                <p><span className="font-black text-cyan-200">3.</span> Open your public profile.</p>
+                <p><span className="font-black text-cyan-200">4.</span> Submit more verified work to improve points, streaks, achievements, and Contribution Score.</p>
               </div>
               <Link href="/leaderboard" className="inline-flex w-full justify-center rounded-full bg-cyan-300 px-6 py-4 font-black text-black hover:bg-cyan-200 sm:w-auto">
                 FIND MY PROFILE
@@ -70,7 +70,7 @@ export default function LoginPage() {
           <section className="mt-6 rounded-3xl border border-yellow-400/20 bg-yellow-400/5 p-5 text-sm text-yellow-100/80 sm:p-6">
             <p className="font-black text-yellow-200">SECURITY NOTE</p>
             <p className="mt-2">
-              Never enter a seed phrase or private key. $SOMETHING profile login only uses public-wallet message signing. Points, achievements, and Contribution Score still come from verified server-side activity, not from anything submitted by the browser.
+              Never enter a seed phrase or private key. Public stats are calculated from admin-approved contributions only. Users cannot award themselves points, achievements, rank, or Contribution Score from the browser.
             </p>
           </section>
 

@@ -18,7 +18,6 @@ export interface ProfilePreferences {
   bio?: string;
   avatarUrl?: string;
   publicWallet: boolean;
-  claimedAt?: string;
   updatedAt?: string;
 }
 

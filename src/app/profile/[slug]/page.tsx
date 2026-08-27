@@ -2,7 +2,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Footer } from "@/components/Footer";
 import { Navigation } from "@/components/Navigation";
-import { ProfileClaimPanel } from "@/components/leaderboard/ProfileClaimPanel";
 import { PROJECT_CONFIG } from "@/config/project";
 import { getMemberProfileBySlug } from "@/lib/leaderboard/storage";
 import { buildRecentActivity, getContributionScoreExplanation, maskWallet } from "@/lib/leaderboard/profileStats";
@@ -136,8 +135,6 @@ export default async function CommunityProfilePage({ params }: { params: Promise
               <Link href="/missions" className="mt-5 inline-flex rounded-full bg-green-500 px-7 py-4 font-black text-black hover:bg-green-400">VIEW MISSIONS</Link>
             </section>
           )}
-
-          <ProfileClaimPanel slug={profile.profileSlug} walletAddress={profile.member.walletAddress} initialPreferences={profile.profilePreferences} />
 
           <section className="mt-6 grid gap-6 lg:grid-cols-2">
             <div className="rounded-3xl border border-green-500/20 bg-black/70 p-5 sm:p-6">
