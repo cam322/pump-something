@@ -37,6 +37,13 @@ export function Navigation() {
         </div>
 
         <div className="flex shrink-0 items-center gap-2">
+          <Link
+            href="/login"
+            className="hidden shrink-0 rounded-full border border-green-500/40 px-3 py-2 text-xs font-black text-green-300 transition-colors hover:bg-green-500/10 hover:text-green-200 sm:inline-flex md:text-sm"
+          >
+            LOGIN / SIGN UP
+          </Link>
+
           {/* Existing CTA - DO SOMETHING */}
           <Link
             href="/do-something"
@@ -76,6 +83,13 @@ export function Navigation() {
                 {link.label}
               </Link>
             ))}
+            <Link
+              href="/login"
+              onClick={() => setMenuOpen(false)}
+              className="rounded-lg border border-green-500/30 bg-green-500/10 px-4 py-3 text-sm font-black text-green-300 transition-colors hover:bg-green-500/20"
+            >
+              LOGIN / SIGN UP
+            </Link>
           </div>
         </div>
       )}
