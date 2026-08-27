@@ -87,6 +87,37 @@ export default async function HomePage() {
             </Link>
           </div>
 
+          {/* Featured Video */}
+          <div className="mx-auto mb-12 max-w-5xl">
+            <div className="relative overflow-hidden rounded-[2rem] border border-green-400/40 bg-[radial-gradient(circle_at_top,rgba(34,197,94,0.22),transparent_36%),linear-gradient(135deg,rgba(0,0,0,0.95),rgba(8,24,12,0.88))] p-2 shadow-[0_0_55px_rgba(34,197,94,0.22)] sm:p-3">
+              <div className="pointer-events-none absolute inset-0 z-10 rounded-[2rem] ring-1 ring-inset ring-white/10" />
+              <div className="pointer-events-none absolute -left-24 top-8 h-44 w-44 rounded-full bg-green-400/20 blur-3xl" />
+              <div className="pointer-events-none absolute -right-20 bottom-0 h-52 w-52 rounded-full bg-cyan-400/10 blur-3xl" />
+              <div className="relative overflow-hidden rounded-[1.5rem] border border-white/10 bg-black">
+                <video
+                  className="aspect-video h-auto w-full object-cover"
+                  src="/videos/pumpsomething_akaza.mp4"
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  controls
+                  preload="metadata"
+                  aria-label="Pump Something featured community video"
+                />
+              </div>
+              <div className="relative z-20 flex flex-col gap-2 px-3 py-4 text-left sm:flex-row sm:items-center sm:justify-between sm:px-4">
+                <div>
+                  <p className="text-sm font-black uppercase tracking-[0.22em] text-green-300">Featured $SOMETHING Video</p>
+                  <p className="text-white/60">Press play. Then go do something.</p>
+                </div>
+                <Link href="/missions" className="inline-flex w-full justify-center rounded-full border border-green-400/40 px-5 py-3 text-sm font-black text-green-200 transition-colors hover:bg-green-400/10 sm:w-auto">
+                  START A MISSION
+                </Link>
+              </div>
+            </div>
+          </div>
+
           {/* Mascot */}
           <div className="inline-block">
             <SomethingMascot size={150} animate={true} />
