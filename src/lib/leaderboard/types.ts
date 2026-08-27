@@ -1,5 +1,6 @@
 import type { ContributionStatus, ContributionType, Platform } from "@/config/leaderboard";
 import type { MissionCategory, MissionDifficulty, MissionStatus } from "@/config/missions";
+import type { AchievementBadge, MemberLevel } from "./profileStats";
 
 export interface LeaderboardMember {
   id: string;
@@ -11,6 +12,14 @@ export interface LeaderboardMember {
   otherUsername?: string;
   walletAddress?: string;
   createdAt: string;
+}
+
+export interface ProfilePreferences {
+  bio?: string;
+  avatarUrl?: string;
+  publicWallet: boolean;
+  claimedAt?: string;
+  updatedAt?: string;
 }
 
 export interface Contribution {
@@ -38,10 +47,19 @@ export interface LeaderboardEntry {
   points: number;
   verifiedContributions: number;
   rankTitle: string;
+  leaderboardRank?: number;
+  profileSlug: string;
+  memberLevel: MemberLevel;
+  contributionScore: number;
+  profilePreferences: ProfilePreferences;
   missionsCompleted: number;
   currentStreak: number;
   longestStreak: number;
   badges: string[];
+  achievements: {
+    unlocked: AchievementBadge[];
+    locked: AchievementBadge[];
+  };
   recentContributions: Contribution[];
 }
 

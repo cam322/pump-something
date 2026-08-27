@@ -145,7 +145,7 @@ export function LeaderboardClient({ initialData }: { initialData: LeaderboardRes
                         {entry.member.displayName.slice(0, 1).toUpperCase()}
                       </div>
                       <div className="min-w-0">
-                        <p className="font-black text-white text-xl truncate">{entry.member.displayName}</p>
+                        <Link href={`/profile/${entry.profileSlug}`} className="block font-black text-white text-xl truncate hover:text-green-400">{entry.member.displayName}</Link>
                         <p className="text-green-400 truncate">@{usernameFor(entry)}</p>
                       </div>
                     </div>
@@ -154,17 +154,17 @@ export function LeaderboardClient({ initialData }: { initialData: LeaderboardRes
                     <div className="mb-3 inline-flex rounded-full border border-orange-400/30 bg-orange-400/10 px-3 py-1 text-sm font-black text-orange-300">
                       🔥 {entry.currentStreak} DAY STREAK
                     </div>
-                    <p className="text-white font-bold">{entry.rankTitle}</p>
-                    <p className="text-white/60">{entry.verifiedContributions} verified contributions · {entry.missionsCompleted} missions</p>
+                    <p className="text-white font-bold">LEVEL {entry.memberLevel.level} — {entry.memberLevel.title}</p>
+                    <p className="text-white/60">Score {entry.contributionScore.toLocaleString()} · {entry.verifiedContributions} verified · {entry.achievements.unlocked.length} badges</p>
                     <div className="mt-4 flex flex-col gap-2">
                       {latestProofLink(entry) && (
                         <Link href={latestProofLink(entry) || "#"} target="_blank" rel="noopener noreferrer" className="rounded-full border border-cyan-400/30 px-4 py-2 text-center text-sm font-bold text-cyan-200 hover:bg-cyan-400/10">
                           VIEW MEME POST
                         </Link>
                       )}
-                      <button onClick={() => setSelectedMember(entry)} className="rounded-full bg-white/10 px-4 py-2 text-sm font-bold text-white hover:bg-white/20">
+                      <Link href={`/profile/${entry.profileSlug}`} className="rounded-full bg-white/10 px-4 py-2 text-center text-sm font-bold text-white hover:bg-white/20">
                         VIEW PROFILE
-                      </button>
+                      </Link>
                     </div>
                   </div>
                 ))}
@@ -176,11 +176,12 @@ export function LeaderboardClient({ initialData }: { initialData: LeaderboardRes
                 </div>
                 <div className="divide-y divide-green-500/10">
                   {data.entries.map((entry, index) => (
-                    <div key={entry.member.id} className="grid grid-cols-[auto_1fr] sm:grid-cols-[56px_1fr_110px_90px_120px_170px] gap-3 p-4 text-left hover:bg-green-500/5 transition-all">
+                    <div key={entry.member.id} className="grid grid-cols-[auto_1fr] sm:grid-cols-[56px_1fr_100px_90px_110px_110px] gap-3 p-4 text-left hover:bg-green-500/5 transition-all">
                       <div className="text-green-400 font-black">#{index + 1}</div>
                       <div className="min-w-0">
-                        <button onClick={() => setSelectedMember(entry)} className="block max-w-full truncate text-left font-bold text-white hover:text-green-400">{entry.member.displayName}</button>
+                        <Link href={`/profile/${entry.profileSlug}`} className="block max-w-full truncate text-left font-bold text-white hover:text-green-400">{entry.member.displayName}</Link>
                         <p className="text-sm text-white/50 truncate">@{usernameFor(entry)}</p>
+                        <p className="text-xs font-black text-green-300 sm:hidden">LEVEL {entry.memberLevel.level} · SCORE {entry.contributionScore.toLocaleString()} · {entry.achievements.unlocked.length} BADGES</p>
                         {latestProofLink(entry) && (
                           <Link href={latestProofLink(entry) || "#"} target="_blank" rel="noopener noreferrer" className="mt-1 inline-block text-sm font-bold text-cyan-300 underline underline-offset-4">
                             View meme post
@@ -189,8 +190,8 @@ export function LeaderboardClient({ initialData }: { initialData: LeaderboardRes
                       </div>
                       <div className="font-black text-green-400 sm:text-right">{entry.points.toLocaleString()}<span className="sm:hidden text-white/50"> pts</span></div>
                       <div className="text-orange-300 font-black sm:text-right">🔥 {entry.currentStreak}</div>
-                      <div className="text-white/70 sm:text-right">{entry.verifiedContributions}<span className="sm:hidden"> contributions</span></div>
-                      <div className="text-white/80 font-bold sm:text-right col-span-2 sm:col-span-1">{entry.rankTitle}</div>
+                      <div className="text-white/70 sm:text-right">{entry.contributionScore.toLocaleString()}<span className="sm:hidden"> score</span></div>
+                      <div className="text-white/80 font-bold sm:text-right col-span-2 sm:col-span-1">L{entry.memberLevel.level} · {entry.achievements.unlocked.length} 🏅</div>
                     </div>
                   ))}
                 </div>
@@ -292,7 +293,7 @@ export function LeaderboardClient({ initialData }: { initialData: LeaderboardRes
             <h3 className="text-xl font-black text-white mb-3">RECENT VERIFIED CONTRIBUTIONS</h3>
             {selectedMember.recentContributions.length === 0 ? <p className="text-white/50">Nothing approved yet.</p> : (
               <div className="space-y-3">
-                {selectedMember.recentContributions.map((item) => (
+                {selectedMember.recentContributions.slice(0, 20).map((item) => (
                   <div key={item.id} className="rounded-xl border border-white/10 bg-white/5 p-3">
                     <p className="text-green-400 font-black">+{item.pointsAwarded} {item.missionTitle || item.type}</p>
                     <p className="text-white/70">{item.description}</p>

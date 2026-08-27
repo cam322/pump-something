@@ -1,7 +1,8 @@
 import { getRankTitle } from "@/config/leaderboard";
 import { createHash } from "crypto";
+import { defaultProfilePreferences, enrichEntry, isValidProfileSlug, memberMatchesSlug } from "./profileStats";
 import { identityFieldForPlatform, normalizeUsername, suggestedPointsFor } from "./validation";
-import type { Contribution, LeaderboardEntry, LeaderboardMember, LeaderboardResponse, SubmitContributionInput } from "./types";
+import type { Contribution, LeaderboardEntry, LeaderboardMember, LeaderboardResponse, ProfilePreferences, SubmitContributionInput } from "./types";
 
 const PREFIX = "something:leaderboard";
 const MEMBER_INDEX = `${PREFIX}:members`;
@@ -65,6 +66,10 @@ function memberKey(id: string) {
 
 function contributionKey(id: string) {
   return `${PREFIX}:contribution:${id}`;
+}
+
+function profilePreferencesKey(memberId: string) {
+  return `${PREFIX}:profile:${memberId}:preferences`;
 }
 
 function previewKey(proofUrl: string) {
@@ -172,6 +177,65 @@ function badgesFor(contributions: Contribution[], currentStreak: number, longest
   return badges;
 }
 
+function baseEntryForMember(member: LeaderboardMember, approvedContributions: Contribution[], rank?: number, profilePreferences: ProfilePreferences = defaultProfilePreferences()): LeaderboardEntry {
+  const memberContributions = approvedContributions
+    .filter((item) => item.memberId === member.id && item.status === "APPROVED")
+    .sort((a, b) => (b.verifiedAt || "").localeCompare(a.verifiedAt || ""));
+  const points = memberContributions.reduce((total, item) => total + item.pointsAwarded, 0);
+  const { currentStreak, longestStreak } = calculateStreaks(memberContributions);
+  const missionsCompleted = memberContributions.filter((item) => item.missionId).length;
+
+  return enrichEntry({
+    member,
+    points,
+    verifiedContributions: memberContributions.length,
+    rankTitle: getRankTitle(points),
+    missionsCompleted,
+    currentStreak,
+    longestStreak,
+    badges: badgesFor(memberContributions, currentStreak, longestStreak),
+    profilePreferences,
+    recentContributions: memberContributions,
+  }, rank);
+}
+
+export async function getProfilePreferences(memberId: string): Promise<ProfilePreferences> {
+  if (!isLeaderboardStorageConfigured()) return defaultProfilePreferences();
+  return await getJson<ProfilePreferences>(profilePreferencesKey(memberId)) || defaultProfilePreferences();
+}
+
+function sanitizeProfilePreferences(input: Record<string, unknown>, existing: ProfilePreferences): ProfilePreferences {
+  const next: ProfilePreferences = { ...existing, publicWallet: Boolean(input.publicWallet), updatedAt: new Date().toISOString() };
+  if (typeof input.bio === "string") {
+    next.bio = input.bio.trim().replace(/[<>]/g, "").slice(0, 180) || undefined;
+  }
+  if (typeof input.avatarUrl === "string") {
+    const trimmed = input.avatarUrl.trim().slice(0, 500);
+    if (!trimmed) {
+      next.avatarUrl = undefined;
+    } else {
+      const url = new URL(trimmed);
+      if (url.protocol !== "https:" && url.protocol !== "http:") throw new Error("Avatar must be an http(s) URL.");
+      next.avatarUrl = url.toString();
+    }
+  }
+  return next;
+}
+
+export async function updateProfilePreferences(memberId: string, input: Record<string, unknown>): Promise<ProfilePreferences> {
+  const existing = await getProfilePreferences(memberId);
+  const next = sanitizeProfilePreferences(input, existing);
+  await setJson(profilePreferencesKey(memberId), next);
+  return next;
+}
+
+export async function markProfileClaimed(memberId: string): Promise<ProfilePreferences> {
+  const existing = await getProfilePreferences(memberId);
+  const next = { ...existing, publicWallet: existing.publicWallet || false, claimedAt: existing.claimedAt || new Date().toISOString(), updatedAt: new Date().toISOString() };
+  await setJson(profilePreferencesKey(memberId), next);
+  return next;
+}
+
 async function getMembersByIds(ids: string[]): Promise<LeaderboardMember[]> {
   if (ids.length === 0) return [];
   const values = await redisCommand<Array<string | null>>(["MGET", ...ids.map(memberKey)]);
@@ -271,25 +335,11 @@ export async function getLeaderboard(limit = 50): Promise<LeaderboardResponse> {
   const members = await getMembersByIds(memberIds);
   const memberMap = new Map(members.map((member) => [member.id, member]));
 
-  const entries = Array.from(memberMap.values()).map((member) => {
-    const recentContributions = approvedContributions
-      .filter((item) => item.memberId === member.id && item.status === "APPROVED")
-      .sort((a, b) => (b.verifiedAt || "").localeCompare(a.verifiedAt || ""));
-    const points = recentContributions.reduce((total, item) => total + item.pointsAwarded, 0);
-    const { currentStreak, longestStreak } = calculateStreaks(recentContributions);
-    const missionsCompleted = recentContributions.filter((item) => item.missionId).length;
-    return {
-      member,
-      points,
-      verifiedContributions: recentContributions.length,
-      rankTitle: getRankTitle(points),
-      missionsCompleted,
-      currentStreak,
-      longestStreak,
-      badges: badgesFor(recentContributions, currentStreak, longestStreak),
-      recentContributions: recentContributions.slice(0, 5),
-    } satisfies LeaderboardEntry;
-  }).sort((a, b) => b.points - a.points || b.verifiedContributions - a.verifiedContributions)
+  const entries = Array.from(memberMap.values())
+    .map((member) => baseEntryForMember(member, approvedContributions))
+    .sort((a, b) => b.points - a.points || b.verifiedContributions - a.verifiedContributions)
+    .map((entry, index) => enrichEntry(entry, index + 1))
+    .map((entry) => ({ ...entry, recentContributions: entry.recentContributions.slice(0, 5) }))
     .slice(0, limit);
 
   const recentActivity = approvedContributions
@@ -315,24 +365,24 @@ export async function getMemberProfile(id: string): Promise<LeaderboardEntry | n
   if (!member) return null;
 
   const approvedIds = await redisCommand<string[]>(["SMEMBERS", APPROVED_INDEX]);
-  const approvedContributions = (await getContributionsByIds(approvedIds))
-    .filter((item) => item.memberId === id && item.status === "APPROVED")
-    .sort((a, b) => (b.verifiedAt || "").localeCompare(a.verifiedAt || ""));
-  const points = approvedContributions.reduce((total, item) => total + item.pointsAwarded, 0);
-  const { currentStreak, longestStreak } = calculateStreaks(approvedContributions);
-  const missionsCompleted = approvedContributions.filter((item) => item.missionId).length;
+  const approvedContributions = await getContributionsByIds(approvedIds);
+  const rankedMemberIds = Array.from(new Set(approvedContributions.map((item) => item.memberId)));
+  const rankedMembers = await getMembersByIds(rankedMemberIds);
+  const rankedEntries = rankedMembers
+    .map((rankedMember) => baseEntryForMember(rankedMember, approvedContributions))
+    .sort((a, b) => b.points - a.points || b.verifiedContributions - a.verifiedContributions);
+  const rank = rankedEntries.findIndex((entry) => entry.member.id === id) + 1;
 
-  return {
-    member,
-    points,
-    verifiedContributions: approvedContributions.length,
-    rankTitle: getRankTitle(points),
-    missionsCompleted,
-    currentStreak,
-    longestStreak,
-    badges: badgesFor(approvedContributions, currentStreak, longestStreak),
-    recentContributions: approvedContributions.slice(0, 20),
-  };
+  return baseEntryForMember(member, approvedContributions, rank || undefined, await getProfilePreferences(member.id));
+}
+
+export async function getMemberProfileBySlug(slug: string): Promise<LeaderboardEntry | null> {
+  if (!isLeaderboardStorageConfigured() || !isValidProfileSlug(slug)) return null;
+  const memberIds = await redisCommand<string[]>(["SMEMBERS", MEMBER_INDEX]);
+  const members = await getMembersByIds(memberIds);
+  const member = members.find((item) => memberMatchesSlug(item, slug));
+  if (!member) return null;
+  return getMemberProfile(member.id);
 }
 
 export async function getApprovedArchiveMemes(): Promise<Array<{
